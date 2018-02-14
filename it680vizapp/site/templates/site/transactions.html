@@ -1,0 +1,38 @@
+{% extends 'site/layout.html' %}
+
+{% block body %}
+
+       <table class="table table-bordered" id="trans_tbl">
+         <thead>
+           <tr>
+             <th>Date</th>
+             <th>Item</th>
+             <th>Payer</th>
+             <th>Amount</th>
+             <th>Status</th>
+             <th>Comment</th>
+             {% if session.authority == 'admin' %}
+             <th>Action</th>
+             {% endif %}
+           </tr>
+         </thead>
+         <tbody>
+         	{% for item in data %}
+           <tr>
+             <td>{{item.manual_date}}</td>
+             <td>{{item.item}}</td>
+             <td>{{item.payer}}</td>
+             <td>${{item.amount}}</td>
+             <td>{{item.status}}</td>
+             <td>{{item.comment}}</td>
+             {% if session.authority == 'admin' %}
+              <td>              
+              <a href="/admin/edit_transaction/{{item.id}}" class="btn btn-info btn-xs pull-left">Edit</a>
+              <a href="/admin/delete_transaction/{{item.id}}" class="btn btn-danger btn-xs pull-left">Delete</a>            
+              </td>
+              {% endif %}
+           </tr>
+           {% endfor %}
+         </tbody>
+       </table>
+{% endblock %}

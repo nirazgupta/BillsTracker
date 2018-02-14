@@ -1,0 +1,48 @@
+{% extends 'site/layout.html' %}
+
+{% block body %}
+	<script type="text/javascript" src="{{ url_for('site.static', filename='js/main.js') }}"></script>
+	
+	<div class="container">
+		<div class="row">
+			<div class="col-xs-12 col-md-8">	
+				<h3>Edit Transaction</h3>
+				{% from "site/includes/_formhelpers.html" import render_field %}
+				<form method="POST" action="" name="thisForm" id="myform">
+					
+						<div class="form-group">
+							{{render_field(form.manual_date, class_="form-control")}}
+						</div>
+						<div class="form-group">
+							{{render_field(form.item, class_="form-control")}}
+						</div>
+						<div class="form-group">
+						{{render_field(form.payer, class_="form-control")}}
+						</div>
+						<div class="form-group">
+							{{render_field(form.amount, class_="form-control")}}
+						</div>
+
+						<div class="form-group">
+							{{render_field(form.comment, class_="form-control")}}
+						</div>
+						<div class="form-group">
+							<label>Status</label>
+							<select class="form-control" name="status">
+							  <option value="" disabled selected>Select your option</option>	
+							  <option value="unpaid">Unpaid</option>
+							  <option value="paid">Paid</option>
+							  <option value="pending">Pending</option>
+							</select>							
+						</div>
+						<input type="submit" class="btn btn-success" value="submit" onclick="return loopForm(document.thisForm);">								
+			</div>
+			</form>		
+	</div>
+
+	<footer class="py-5 bg-dark">
+	      <p class="m-0 text-center text-white">Copyright &copy; MankatoExpenses 2017</p>
+	    <!-- /.container -->
+	 </footer>
+
+{% endblock %}

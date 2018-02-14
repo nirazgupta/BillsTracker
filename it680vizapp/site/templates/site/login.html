@@ -1,0 +1,28 @@
+{% extends 'site/layout.html' %}
+
+{% block body %}
+	{% from "site/includes/_formhelpers.html" import render_field %}
+	<script type="text/javascript" src="{{ url_for('site.static', filename='js/main.js') }}"></script>
+	<link rel="stylesheet" type="text/css" href="{{ url_for('site.static', filename='css/stylesheet.css') }}">
+	<div class="container">
+		<div class="row">
+			<div class="col-md-offset-3 col-md-6">			
+				<h1>Login</h1>
+				<form method="POST" action="" name="loginform" onsubmit="return validate()">
+					<div class="form-group">
+						<label>Username</label>
+						<input type="text" name="username" id="form_css1" class="form-control" placeholder="Username" value="{{request.form.username}}">
+						<b id="useralert"></b>
+					</div>
+					<div class="form-group">
+						<label>Password</label>
+						<input type="password" name="password" id="form_css2" class="form-control" placeholder="Password" value="{{request.form.password}}">
+						<b id="passalert"></b>
+					</div>
+					<p><input type="submit" class="btn btn-success" value="submit" ></p>
+				</form>
+				<p class="forgot_pass"><a href="{{ url_for('site.password_reset') }}">Forgot Password</a></p>
+			</div>
+		</div>
+	</div>
+{% endblock %}

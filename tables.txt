@@ -1,0 +1,27 @@
+create table users_v2(
+	user_id INT AUTO_INCREMENT PRIMARY KEY,
+	name varchar(50),
+	email varchar(50),
+    username varchar(50) NOT NULL,
+    password varchar(50) not null,
+	register_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    enabled boolean not null
+);
+USE flask_mankatoexpenses;
+create table authorities (
+    auth_id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    authority varchar(50) not null,
+    user_id INT NOT NULL,
+    constraint fk_authorities_users foreign key(user_id) references users_v2(user_id)
+);
+create unique index ix_auth_username on authorities (user_id,authority);
+
+
+CREATE TABLE user_transaction (
+  user_id INT NOT NULL,
+  id INT NOT NULL, 
+  share_amount DECIMAL(10,2) NOT NULL,
+    FOREIGN KEY FK_user_id (user_id) REFERENCES users_v2 (user_id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY fk_tran_id (id) REFERENCES transaction (id) ON DELETE CASCADE ON UPDATE CASCADE,
+    PRIMARY KEY pk_tran_user (user_id, id)
+);

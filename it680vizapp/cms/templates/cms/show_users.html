@@ -1,0 +1,47 @@
+{% extends 'cms/layout.html' %}
+
+{% block body %}
+	<div class="container">
+	   <table class="table table-bordered" id='show_users'>
+	     <thead>
+	       <tr>
+	         <th>User ID</th>
+	         <th>Name</th>
+	         <th>Email</th>
+	         <th>Username</th>
+	         <th>Role</th>
+	         <th>Registered Date</th>
+	         <th>Status</th>
+	         <th>Action</th>
+	       </tr>
+	     </thead>
+	     <tbody>
+	     	{% for item in data %}
+	       <tr>
+	         <td>{{ item.user_id }}</td>
+	         <td>{{ item.name }}</a></td>
+	         <td>{{ item.email }}</td>
+	         <td>{{ item.username }}</td>
+	         <td>{{ item.authority }}</td>
+	         <td>{{ item.register_date }}</td>
+	         {% if item.enabled == 1 %}
+	         	<td>Active</td>
+	         {% else %}
+	         	<td>Inactive</td>
+	         {% endif %}
+	         <td class="user_btn">
+	         	<a href="/admin/edituser/{{item.user_id}}" class="btn btn-info btn-xs pull-left" id="user_edit">Edit</a>
+		         <form action="{{ url_for('cms.deleteuser', user_id=item.user_id) }}" method="POST">
+		         	<input type="hidden" name="_method" value="DELETE">
+		         	<input type="submit" value="Delete" class="btn btn-warning btn-xs" id="user_del">
+		         </form>
+	     	</td>
+	       </tr>
+	       
+	       {% endfor %}
+
+	     </tbody>
+	   </table>
+	</div>
+
+{% endblock %}

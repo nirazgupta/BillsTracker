@@ -1,0 +1,68 @@
+{% extends 'site/layout.html' %}
+
+{% block body %}
+
+	<h1 class="my-4">About Us
+	        <small>It's Nice to Meet You!</small>
+	      </h1>
+	     
+	      <!-- Team Members Row -->
+	      <div class="row">
+	        <div class="col-lg-12">
+	        	<p>This app is powered by Python 3.6. We have use the Flask framework for development, CSS, HTML and Javascript for the front-end and client-side processing. And, mysql database for the backend.</p>
+	          <h2 class="my-4">Members of 306 Family</h2>
+	        </div>
+	        <div class="col-lg-4 col-sm-6 text-center mb-4">
+	          <img class="image_frame" src="{{ url_for('site.static', filename='img/sonika.jpg') }}" width="150" height="150" alt="">
+	          <h3>Sonika Shrestha
+	            <small>Family Member</small>
+	          </h3>
+	          <p>Member of the app for now until the proper role is defined.</p>
+	        </div>
+
+	        <div class="col-lg-4 col-sm-6 text-center mb-4">
+	          <img class="image_frame" src="{{ url_for('site.static', filename='img/anuj.jpg') }}" width="150" height="150" alt="">
+	          <h3>Anuj Bhandari
+	            <small>Family Member</small>
+	          </h3>
+	          <p>Member of the app for now until the proper role is defined.</p>
+	        </div>
+	       <div class="col-lg-4 col-sm-6 text-center mb-4">
+	         <img class="image_frame" src="{{ url_for('site.static', filename='img/suhan.jpg') }}" width="150" height="150" alt="">
+	         <h3>Suhan Budhathoki
+	           <small>Family Member</small>
+	         </h3>
+	         <p>Member of the app for now until the proper role is defined.</p>
+	       </div>
+	       <div class="col-lg-4 col-sm-6 text-center mb-4">
+	         <img class="image_frame" src="{{ url_for('site.static', filename='img/bishal.jpg') }}" width="150" height="150" alt="">
+	         <h3>Bishal Pandey
+	           <small>Family Member</small>
+	         </h3>
+	         <p>Member of the app for now until the proper role is defined.</p>
+	       </div>
+	       <div class="col-lg-4 col-sm-6 text-center mb-4">
+	         <img class="image_frame" src="{{ url_for('site.static', filename='img/niraj.jpg') }}" width="150" height="150" alt="">
+	         <h3>Niraj Gupta
+	           <small>Family member and Admin</small>
+	         </h3>
+	         <p>Developer of the application.</p>
+	       </div>
+	       <div class="col-lg-4 col-sm-6 text-center mb-4">
+	         <img class="image_frame" src="{{ url_for('site.static', filename='img/prashant.jpg') }}" width="150" height="150" alt="">
+	         <h3>Prashant Karki
+	           <small>Family Member</small>
+	         </h3>
+	         <p>Member of the app for now until the proper role is defined.</p>
+	       </div>
+
+	    </div>
+	    <!-- /.container -->
+
+	    <!-- Footer -->
+	    <footer class="py-5 bg-dark">
+	        <p class="m-0 text-center text-white">Copyright &copy; MankatoExpenses 2017</p>
+	      <!-- /.container -->
+	    </footer>
+
+{% endblock %}

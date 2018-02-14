@@ -1,0 +1,83 @@
+{% extends 'site/layout.html' %}
+
+{% block body %}
+	
+    <div class="col-sm-7">
+    	<table class="table table-bordered">
+    	  <thead>
+    	    <tr>
+    	      <th>Tran_ID</th>
+    	      <th>Item</th>
+    	      <th>Num of People</th>
+    	      <th>Payer</th>
+    	      <th>Amount</th>
+    	    </tr>
+    	  </thead>
+    	  <tbody>
+    	  	{% for i in data_2 %}
+    	    <tr>
+    	      <td>{{i.id}}</td>
+    	      <td>{{i.item}}</td>
+    	      <td>{{i.user_count}}</td>
+    	      <td>{{i.payer}}</td>
+    	      <td>${{i.shr_amount}}</td>
+    	    </tr>
+    	    {% endfor %}
+
+    	  </tbody>
+    	</table>
+    </div>
+
+
+	<div class="col-sm-5">
+       <table class="table table-bordered">
+         <thead>
+           <tr>
+           	 <th>User ID</th>
+             <th>Name</th>
+             <th>Own Share</th>               
+             <th>Amount Lent</th>
+           </tr>
+         </thead>
+         <tbody>
+         	{% for item in data_4 %}
+           <tr>
+           	 <td>{{item.user_id}}</td>
+             <td>{{item.name}}</td>
+             <td>${{item.per_share}}</td>
+             <td>${{item.amt_lent}}</td>
+            </tr>
+           {% endfor %}         
+         </tbody>
+       
+         <!-- <thead>
+           <tr>
+             <th></th>
+             <th>Total</th>
+             <th>Amount</th>
+             <th>Own_share</th>               
+             <th>Lent</th>
+           </tr>
+         </thead> -->
+      </table>
+
+       <table class="table table-bordered">
+         <thead>
+           <tr>
+             <th>Name</th>
+             <th>Total Paid</th>
+           </tr>
+         </thead>
+         <tbody>
+          {% for item in data_3 %}
+           <tr>
+             <td>{{item.payer}}</td>
+             <td>${{item.amount}}</td>
+           {% endfor %}
+         </tr>
+         </tbody>
+      </table>
+
+    </div>
+
+{% endblock %}

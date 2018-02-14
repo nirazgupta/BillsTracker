@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Mankato Expenses</title>
+	<link rel="stylesheet" type="text/css" href="{{ url_for('site.static', filename='css/stylesheet.css') }}">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+	<link src="{{ url_for('site.static', filename='js/bootstrap.bundle.min.js') }}">
+</head>
+<body>
+	{% include 'site/includes/_navbar.html' %}
+	
+	<div class="container" id="main_container">
+		<div class="breadcrumb">
+	        {%- for breadcrumb in breadcrumbs -%}
+	            <a href="{{ breadcrumb.url }}">{{ breadcrumb.text }}</a>
+	            {{ ' | ' if not loop.last }}
+	        {%- endfor -%}
+		</div>
+	{% include 'site/includes/_messages.html' %}
+		{% block body %}
+		{% endblock %}
+	</div>
+	
+	
+</body>
+</html>

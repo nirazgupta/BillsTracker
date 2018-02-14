@@ -1,0 +1,134 @@
+
+.table-bordered {
+  height: 100px;
+  overflow: auto;
+}
+
+.sidebar-nav {
+  height: 100%;
+}
+
+.image_frame{
+	border-radius: 50%;
+}
+
+.outer-wrapper { 
+display: table;
+width: 100%;
+height: 100%;
+}
+
+.inner-wrapper {
+  display:table-cell;
+  vertical-align:middle;
+  padding:15px;
+}
+.login-btn { position:fixed; top:15px; right:15px; }
+
+
+
+.login_div, .sign_up_div {
+    position: absolute;
+
+    width: 300px;
+    height: 300px;
+    border: 1px;
+    /* Center form on page horizontally & vertically */
+    top: 40%;
+    left: 50%;
+    margin-top: -150px;
+    margin-left: -150px;
+}
+
+.login_form, .sign_up_form {
+    width: 300px;
+    height: 300px;
+
+    background: ;
+    border-radius: 10px;
+
+    margin: 0;
+    padding: 0;
+}
+
+.sign_up_div > h1 {
+    margin-left: 75px; 
+}
+
+.login_div > h1 {
+    margin-left: 23px; 
+}
+
+.btn.btn-success {
+    width: 100%
+
+}
+
+.btn.btn-success:hover {
+    box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
+    width: 100%
+}
+
+.btn.btn-primary {
+    width: 100%
+
+}
+
+.btn.btn-primary:hover {
+    box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
+    width: 100%
+}
+
+
+
+input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+}
+
+
+.py-5.bg-dark {
+    margin-top: 20px;
+    font-family: sans-serif;
+    font-weight: bold; 
+    font
+
+}
+
+
+#useralert {
+    font-weight: normal;
+}
+
+#passalert{
+    font-weight: normal;
+}
+
+#checkalert {
+    font-weight: normal;
+    color: red;
+}
+
+
+
+/* make sidebar nav vertical */ 
+@media (min-width: 768px) {
+  .sidebar-nav .navbar .navbar-collapse {
+    padding: 0;
+    max-height: none;
+  }
+  .sidebar-nav .navbar ul {
+    float: none;
+  }
+  .sidebar-nav .navbar ul:not {
+    display: block;
+  }
+  .sidebar-nav .navbar li {
+    float: none;
+    display: block;
+  }
+  .sidebar-nav .navbar li a {
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
+}
