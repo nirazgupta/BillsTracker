@@ -1,0 +1,43 @@
+{% extends 'site/layout.html' %}
+
+{% block body %}
+<div class="row">
+
+        {% include 'site/includes/_vnavbar.html' %}
+    
+<div class="col-md-9 col-md-2 ">
+  
+<!-- <div id="show_users">
+    <table class="table table-bordered" >
+     <thead>
+       <tr>
+         <th>Members</th>
+
+       </tr>
+     </thead>
+     <tbody>
+       {% for item in data %}
+       <tr>
+        <td>{{item.name}}</td>
+       </tr>
+       {% endfor %}
+     </tbody>
+   </table>
+   
+</div>
+
+</div>
+<div  class="col-md-9 col-md-2 pull-right">
+  <ul class="nav navbar-nav navbar-right">
+    
+    {% if session.group_id %}
+    <li><a href="/trans_form">New transaction</a></li>
+    <li><a href="/trans_view">View</a></li>
+    {% endif %}
+  </ul>
+</div> -->
+</div>
+
+
+
+{% endblock %}

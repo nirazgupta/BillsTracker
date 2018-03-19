@@ -1,0 +1,73 @@
+
+
+. {
+    margin:0px;
+    padding: 0px;
+    font-family: sans-serif;
+}
+
+/*.sidebar {
+    position: fixed;
+    width: 200px;
+    height: 100%;
+    background: #151719;
+}
+
+.sidebar ul {
+    color: rgba(230, 230, 230, 0.9);
+    list-style-type: none;
+    padding: 15px 10px;
+    border-bottom: 1px solid rgba(100, 100,100, 0.3) 
+}*/
+
+.sidebar #left {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #333; 
+    border-bottom: 1px solid rgba(100, 100,100, 0.3) 
+}
+
+
+
+.sidebar .toggle-btn {
+    position: absolute;
+    left:230px;
+    top:20px;
+}
+
+.sidebar .toggle-btn span {
+    display: block;
+    width: 30px;
+    height: 5px;
+    background: #151719;
+    margin: 3px 0px;
+}
+
+
+
+.btn.btn-success {
+    width: 100%
+
+}
+
+.btn.btn-success:hover {
+    box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
+    width: 100%
+}
+
+.btn.btn-primary {
+    width: 100%
+
+}
+
+.btn.btn-primary:hover {
+    box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
+    width: 100%
+}
+
+
+.user_btn {
+    width: 100px;
+}

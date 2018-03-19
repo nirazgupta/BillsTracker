@@ -2,12 +2,13 @@
 
 {% block body %}
 
-	  <div class="jumbotron text-center">	  
-	    <h1>Mankato Expense tracking App.</h1>
-	    <p>The idea for this webapp was conceived by a group of students living in Mankato area and, we call 306 Family. We came up with the name 'Mankatoexpenses' for this app, because we felt that it defines its purpose as it's main purpose is to facilitate the tracking of common monetory transactions involved among Family members.</p>
-      
-	    <!--<p><a class="btn btn-primary btn-lg" href="#" role="button">Learn more &raquo;</a></p>-->
-	  </div>
+    <div class="container">
+      <select id="nest_input">
+          <option value="DECISION_NET">Chart by decision net</option>
+          <option value="DESCRIPTION">Chart by description</option>
+      </select>
+  <div id="event"></div>
+</div>
 
   <!-- Footer -->
   <footer class="py-5 bg-dark">
@@ -16,6 +17,13 @@
   </footer>
 
 
-     
+	<link src="{{ url_for('site.static', filename='js/viz.js') }}">
+<script>
+//user_count_chart();
+
+
+
+</script>
+
 
 {% endblock %}

@@ -1,0 +1,27 @@
+{% extends 'site/layout.html' %}
+
+{% block body %}
+<div class="row">
+    {% include 'site/includes/_vnavbar.html' %}
+  <div class="col-md-9 ">
+        <table id="data-table" class="table table-bordered" >
+            <thead>
+              <tr>
+                <th>Group Name</th>
+              </tr>
+            </thead>
+            <tbody>
+                
+              {% for item in data%}
+              <tr>
+              <td><a href="/show_users/{{item.group_id}}" id="user_edit">{{item.group_name}}</a></td>
+            </tr>
+              {% endfor %}
+            </form>
+            </tbody>
+          </table>
+      </div>
+</div>
+
+
+{% endblock %}

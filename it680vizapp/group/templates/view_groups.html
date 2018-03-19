@@ -1,0 +1,19 @@
+{% extends 'group/layout.html' %}
+
+{% block body %}
+
+       <table class="table table-bordered" id="group_view_tbl">
+         <thead>
+           <tr>
+             <th>Group Name</th>
+           </tr>
+         </thead>
+         <tbody>
+         	{% for item in data %}
+           <tr>
+            <td><a href="/admin/edit_transaction/{{item.group_id}}">{{item.group_name}}</a></td>
+           </tr>
+           {% endfor %}
+         </tbody>
+       </table>
+{% endblock %}

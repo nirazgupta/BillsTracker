@@ -2,37 +2,135 @@
 
 {% block body %}
 
-       <table class="table table-bordered" id="trans_tbl">
-         <thead>
-           <tr>
-             <th>Date</th>
-             <th>Item</th>
-             <th>Payer</th>
-             <th>Amount</th>
-             <th>Status</th>
-             <th>Comment</th>
-             {% if session.authority == 'admin' %}
-             <th>Action</th>
-             {% endif %}
-           </tr>
-         </thead>
+<div class="row">
+
+  {% include 'site/includes/_vnavbar.html' %}
+
+<div class="col-md-9 col-md-7" style="margin-left: 8px;">
+    
+    <div class="w3-container w3-teal">
+        <div class="col-md-8">
+          {% for item in data['group'] %}
+          <h1>{{item.group_name|title}}</h1>
+          {% endfor %}
+        </div>
+       
+        <div class="col-md-3"><a href="/trans_form" class="btn btn-success btn-float-right">New bill</a>
+        </div>
+      </div>
+      
+      <div class="scroll-box">
+        <div ng-controller="MyController">
+       <table class="w3-table-all w3-card">
          <tbody>
-         	{% for item in data %}
-           <tr>
-             <td>{{item.manual_date}}</td>
-             <td>{{item.item}}</td>
-             <td>{{item.payer}}</td>
-             <td>${{item.amount}}</td>
-             <td>{{item.status}}</td>
-             <td>{{item.comment}}</td>
+         	{% for item in data['trans'] %}
+           <tr class="transaction_display" onclick="show_hide_row('{{item.transaction_id}}');" id="trans_dis" data-value="{{item.transaction_id}}">
+            
+            <td class="tran_view_date group_id" >{{item.manual_date}}</td>
+             <!-- <td><p class="tran_view_text">Item</p><p class="tran_view_val">{{item.item}}</p></td> -->
+             <td class="tran_view_date group_id">{{item.item|title}}</td> 
+             <td><p class="tran_view_text">Paid by</p><p class="tran_view_val">{{item.name|title}}</p></td>
+             <td><p class="tran_view_text">Total paid</p><p class="tran_view_val">${{item.amount}}</p></td>
+             <td><p class="tran_view_text ">Money lent</p><p class="tran_view_val owes">${{item.you_lent|abs}}</p></td>
+             <td><p class="tran_view_text">Status</p><p class="tran_view_val">{{item.status}} </p></td> 
              {% if session.authority == 'admin' %}
               <td>              
               <a href="/admin/edit_transaction/{{item.id}}" class="btn btn-info btn-xs pull-left">Edit</a>
               <a href="/admin/delete_transaction/{{item.id}}" class="btn btn-danger btn-xs pull-left">Delete</a>            
               </td>
               {% endif %}
+              
            </tr>
+
+           <tr id="{{item.transaction_id}}" class="hidden_row" >
+              <td>
+                <div>
+                   <p ng-repeat="data in Content">[[data.name|capitalize]]</p>                   
+                </div>
+              </td>
+              <td >
+                <p ng-repeat="data in Content">owes</p>
+              </td>
+              <td>
+                <div>
+                  <p class="owes_share" ng-repeat="data in Content">$[[data.share_amount]]</p>
+                </div>
+              </td>           
+            </tr>
+          </div>
+           
            {% endfor %}
          </tbody>
+         
        </table>
+       </div>
+      </div>
+      </div>
+
+     
+    <div class="col-md-9 col-md-2 ">
+    <div id="show_users">
+      
+        <table class="w3-table-all w3-card" >
+        <div class="w3-container w3-teal">
+          <thead>
+            <th>People in group</th>
+          </thead>
+        </div>
+          <tbody>
+            {% for item in data['group_people'] %}
+            <tr>
+            <td>{{item.name}}</td>
+            </tr>
+            {% endfor %}
+            
+          </tbody>
+        </table>     
+    </div>   
+  </div>
+
+
+<div class="col-md-9 col-md-2 ">
+    <div id="show_users">
+      
+        <table class="w3-table-all w3-card" >
+        <div class="w3-container w3-teal">
+          <thead>
+            <th>Group Expense</th>
+          </thead>
+        </div>
+          <tbody>
+            {% for item in data['group_total'] %}
+            <tr>
+            <td>Total:  ${{item.total}}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        
+    </div>
+</div>
+
+<div class="col-md-9 col-md-2 ">
+    <div id="show_users">
+        <table class="w3-table-all w3-card" >
+        <div class="w3-container w3-teal">
+          <thead>
+            <th>You Spent</th>
+          </thead>
+        </div>
+          <tbody>
+            {% for item in data['user_group_total'] %}
+            <tr>
+            <td>Total:  ${{item.total}}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        
+    </div>
+</div>
+
+</div>
+</div>
 {% endblock %}

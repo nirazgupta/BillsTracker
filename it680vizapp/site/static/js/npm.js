@@ -11,3 +11,112 @@ require('../../js/popover.js')
 require('../../js/scrollspy.js')
 require('../../js/tab.js')
 require('../../js/affix.js')
+
+
+function user_count_chart(data){
+  
+    var margin = {top: 60, right: 100, bottom: 20, left: 80},
+        width = 600 - margin.left - margin.right,
+        height = 370 - margin.top - margin.bottom;
+    
+        // Parse the month variable
+        var parseMonth = d3.timeParse("%b");
+        var formatMonth = d3.timeFormat("%b");
+    
+        // Set the ranges
+        var x = d3.scaleBand().rangeRound([0, width]).padding(0.1);
+        var y = d3.scaleLinear().range([height, 0]);
+    
+        // Create the svg canvas in the "graph" div
+        var svg = d3.select("#event")
+            .append("svg")
+            .style("width", width + margin.left + margin.right + "px")
+            .style("height", height + margin.top + margin.bottom + "px")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform","translate(" + margin.left + "," + margin.top + ")")
+            .attr("class", "svg");
+
+            $(document).ready(function() {   
+                $.ajax({
+                url: "/getdata",//"{{ url_for ('site.getdata') }}",
+                type: 'GET',
+                dataType: 'json',
+                async: true,
+                data: "{}", 
+                success: function (data) {
+                var pos_data = JSON.parse(data);
+            var nest = d3.nest()
+            .key(function(d) { 
+                return d.user_count;
+            })
+            
+            .rollup(function(leaves) { return leaves.length; })
+            .entries(pos_data);
+
+            x.domain(nest.map(function(d) { return d.key; }));             
+            y.domain([0, d3.max(nest, function(d) { return d.value;  })]);  
+            
+            // Set up the x axis
+            var xaxis = svg.append("g")
+            .attr("transform", "translate(0," + height + ")")
+            .attr("class", "x axis")
+            .call(d3.axisBottom(x)
+                //.ticks(d3.timeMonth)
+                .tickSize(0, 0)
+                //.tickFormat(d3.timeFormat("%B"))
+                .tickSizeInner(0)
+                .tickPadding(5));
+
+
+            // Add the Y Axis
+            var yaxis = svg.append("g")
+            .attr("class", "y axis")
+            .call(d3.axisLeft(y)
+                .ticks(5)
+                .tickSizeInner(0)
+                .tickPadding(6)
+                .tickSize(0, 0));
+
+            // Add a label to the y axis
+            svg.append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("y", 0 - 50)
+            .attr("x", 0 - (height / 2))
+            .attr("dy", "1em")
+            .style("text-anchor", "middle")
+            .text("Count")
+            .attr("class", "y axis label");
+
+            svg.selectAll(".rect")
+            .data(nest)
+            .enter()
+            .append("rect")
+                .attr("class", "bar")
+                .attr("x", function(d) { return x(d.key); })
+                .attr("y", function(d) { return y(d.value); })
+                .attr("width", x.bandwidth())
+                
+                .attr("fill", function(d) {
+                if (d.key == 'NO DECISION') {
+                return "blue";
+                } else if (d.key == 'Fire Employee') {
+                return "red";
+                } else if (d.key == 'Give Warning to Employee') {
+                    return "orange";
+                } else if (d.key == 'Give Raise to Employee') {
+                    return "green";
+                }
+                return "purple";
+                })
+                .attr("height", function(d) { return height - y(d.value)}
+                .on('mouseover', function(d){
+                    d3.select(this)
+                    .style('opacity', 0.5);
+                })
+                .on('mouseleave', function(d){
+                    d3.select(this)
+                    .style('opacity', 1);
+
+}

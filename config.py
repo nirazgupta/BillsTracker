@@ -59,6 +59,47 @@ class Config(object):
     MAIL_USE_TLS = False
     MAIL_USE_SSL = True
 
+    
+
+class ConfigSqlite(Config):
+    DEBUG = True
+    DEVELOPMENT = True
+    SECRET_KEY = 'lenovoideapad123456789'
+    MYSQL_HOST = 'localhost'
+    MYSQL_USER = 'root'
+    MYSQL_PASSWORD = 'motorockr'
+    MYSQL_DB = 'it680vizapp2'
+    MYSQL_CURSORCLASS = 'DictCursor'
+    
+
+    SECURITY_PASSWORD_SALT = '\xd3\xff\xc0\xa0\xe8\x11\x0b\xb9\x93\xb2'
+
+    MAIL_SERVER = 'smtp.gmail.com'
+    MAIL_PORT = 465
+    MAIL_USERNAME = 'gupta.niraz@gmail.com'
+    MAIL_PASSWORD = 'motorockr'
+    MAIL_USE_TLS = False
+    MAIL_USE_SSL = True
+
+class ConfigVizApp(Config):
+    DEBUG = True
+    DEVELOPMENT = True
+    SECRET_KEY = 'lenovoideapad123456789'
+    MYSQL_HOST = 'localhost'
+    MYSQL_USER = 'root'
+    MYSQL_PASSWORD = 'motorockr'
+    MYSQL_DB = 'it680vizapp'
+    MYSQL_CURSORCLASS = 'DictCursor'
+
+    SECURITY_PASSWORD_SALT = '\xd3\xff\xc0\xa0\xe8\x11\x0b\xb9\x93\xb2'
+
+    MAIL_SERVER = 'smtp.gmail.com'
+    MAIL_PORT = 465
+    MAIL_USERNAME = 'gupta.niraz@gmail.com'
+    MAIL_PASSWORD = 'motorockr'
+    MAIL_USE_TLS = False
+    MAIL_USE_SSL = True
+
 class ProductionConfig(Config):
     DEVELOPMENT = False
     SECRET_KEY = '\xd3\xff\xc0\xa0\xe8\x11\x0b\xb9\x93\xb2\xd0\x97\xe4\x1b\xf2\x12\x81\xd2'

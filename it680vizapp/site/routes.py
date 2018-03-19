@@ -10,6 +10,13 @@ from flask_mail import Message
 #from mysql import escape_string as thwart
 from flask import current_app
 from flask_breadcrumbs import register_breadcrumb, default_breadcrumb_root
+import pandas as pd
+import json
+from flask_paginate import Pagination, get_page_parameter
+#from wapy.api import Wapy
+#from walmart_api_client import WalmartApiClient
+import pandas.io.sql as psql
+from it680vizapp.group.routes import get_users_id
 
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired
 
@@ -31,7 +38,6 @@ def home():
 	return render_template('site/viz.html')
 
 
-
 #Site about page route
 @mod.route('/about')
 @register_breadcrumb(mod, '.about', 'About', order=5)
@@ -48,6 +54,38 @@ def contact():
 def viz():
 	return render_template('site/viz.html')
 
+@mod.route('/getdata')
+def getdata():
+	conn = mysql.connection
+	cur = mysql.connection.cursor()
+
+	query_trans = ''' SELECT ut.id, count(ut.user_id) as user_count, sum(ut.share_amount) as shr_amount, 
+						t.item, t.status, t.payer
+					  FROM user_transaction ut
+					   join transaction t on t.id = ut.id
+					   group by ut.id 
+					   having t.status LIKE 'unpaid%' 
+					   order by ut.id '''
+
+	df2 = psql.read_sql(query_trans, conn)
+	df_to_json2 = df2.to_json(orient='records')
+	res= current_app.logger.info(df2)
+	result = cur.execute(query_trans)
+	result_2 = cur.fetchall()
+	#products = Wapy.search('xbox')
+	cur.close()
+
+	return json.dumps(df_to_json2)
+
+
+
+
+
+
+
+
+
+############### BELOW ARE CODE FOR USER AUTH, EXPENSE MANAGEMENT ########################
 
 #Wrap session for logged in access to pages
 def login_required(f):
@@ -61,26 +99,28 @@ def login_required(f):
     return wrap
 
 #wrapper for setting role based access for site
-def roles_required(func):
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        user = session['username']
-        cur = mysql.connection.cursor()
-        #Get username
-        role_query_statement = ''' select u.name, u.username, a.authority, u.password
-        						 from users_v2 u join authorities a on a.user_id = u.user_id 
-        						 having u.username = %s '''
+# def roles_required(func):
+#     @wraps(func)
+#     def wrapper(*args, **kwargs):
+#         user = session['username']
+#         cur = mysql.connection.cursor()
+#         #Get username
+#         role_query_statement = ''' select u.name, u.username, g.group_name, g.group_id, u.password
+#         						 from user u join user_group g on g.user_id = u.user_id 
+#         						 having u.username = %s '''
 
-        result = cur.execute(role_query_statement, [user])
+#         result = cur.execute(role_query_statement, [user])
         
-        user_data = cur.fetchone()
-        user_auth = user_data['authority']
-        if user_auth in ['Admin', 'admin', 'member']:
-            return func(*args, **kwargs)
-        else:
-            flash('You do not have access to content of this page, redirected to dashboard', 'danger')
-            return redirect(url_for('site.login'))
-    return wrapper
+#         user_data = cur.fetchone()
+#         user_auth = user_data['authority']
+#         if user_auth in ['Admin', 'admin', 'member']:
+#             return func(*args, **kwargs)
+#         else:
+#             flash('You do not have access to content of this page, redirected to dashboard', 'danger')
+#             return redirect(url_for('site.login'))
+#     return wrapper
+
+
 
 
 @mod.route('/register', methods= ['GET', 'POST'])
@@ -102,40 +142,37 @@ def register():
 		cur = mysql.connection.cursor()
 
 		#query to check if user already exists
-		reg_query_username = ''' select username from users_v2 where username = %s '''
+		reg_query_username = ''' select username from user where username = %s '''
 		cur.execute(reg_query_username, ([username]))
 
 		existing_user = cur.fetchone()
-		
+		current_app.logger.info(existing_user)
 		#logic to check if user already exists, if not, the insert logics will execute
 		if existing_user is None:
-			register_insert_query = ''' INSERT INTO users_v2 (name, fname, lname, email, username, password, enabled)
+			register_insert_query = ''' INSERT INTO user (name, fname, lname, email, username, password, enabled)
 										 VALUES(%s, %s, %s, %s, %s, %s, %s) '''
 			cur.execute(register_insert_query, (name, fname, lname, email, username, password, enabled))
-			
-			registered_username_query = ''' select user_id, username from users_v2 where username = %s '''
-			cur.execute(registered_username_query, ([username]))
-
-			user_data = cur.fetchone()
-			user_id = user_data['user_id']
-
-			update_auth_query = ''' INSERT INTO authorities(authority, user_id) VALUES(%s, %s) '''
-			cur.execute(update_auth_query, ('regular', user_id))
-
 			mysql.connection.commit()
 
-			token = serialize.dumps(email, salt='My-Token')
-			current_app.logger.info(token)
+			enabled_username_query = ''' select username, enabled from user where username = %s '''
+			cur.execute(enabled_username_query, ([username]))
 
-			#prepare email msg
-			email_msg = Message('Confirm Email', sender='gupta.niraz@gmail.com', recipients=[email])
-			link = url_for('site.confirm_email', token=token, _external=True)
+			user_data = cur.fetchone()
+			enabled_fetch = user_data['enabled']
 
-			email_msg.body = 'Your link is {}'.format(link)
-			mail.send(email_msg)
+			if enabled_fetch == 0:
+				token = serialize.dumps(email, salt='My-Token')
+				current_app.logger.info(token)
 
-			flash('Resistration Successful!', 'success')
-			return render_template('site/index.html', data=token)
+				#prepare email msg
+				email_msg = Message('Confirm Email', sender='gupta.niraz@gmail.com', recipients=[email])
+				link = url_for('site.confirm_email', token=token, _external=True)
+
+				email_msg.body = 'Your link is {}'.format(link)
+				mail.send(email_msg)
+
+				flash('Resistration Successful!', 'success')
+				return render_template('site/index.html', data=token)
 			#redirect(url_for('site.index'))
 
 			#close cursor
@@ -155,11 +192,14 @@ def confirm_email(token):
 		return '<h1>The token has expired!</h1>'
 	# return '<h1>The token works!</h1>'
 	cur = mysql.connection.cursor()
-	first_query = ''' SELECT username, enabled from users_v2 where email = %s '''
+	first_query = ''' SELECT username, enabled from user where email = %s '''
 	cur.execute(first_query, ([email]))
 	user_data = cur.fetchone()
 	user_status = user_data['enabled']
+	
 	user_name = user_data['username']
+	current_app.logger.info(user_status)
+	current_app.logger.info(user_name)
 
 	if user_status == True:
 		flash('Already activated', 'success')
@@ -168,7 +208,7 @@ def confirm_email(token):
 		return redirect(url_for('site.dashboard'))
 	else:
 
-		query = '''UPDATE users_v2 SET enabled = %s WHERE email = %s'''
+		query = '''UPDATE user SET enabled = %s WHERE email = %s'''
 		cur.execute(query, (True, [email]))
 		mysql.connection.commit()
 
@@ -184,7 +224,7 @@ def password_reset():
 		email = form.email.data.strip()
 
 		cur = mysql.connection.cursor()
-		query = '''SELECT * from users_v2 WHERE email=%s'''
+		query = '''SELECT * from user WHERE email=%s'''
 		cur.execute(query, [email])
 		user = cur.fetchone()
 
@@ -215,7 +255,7 @@ def password_reset_token(token):
 
 	if form.validate():
 		cur = mysql.connection.cursor()
-		fetch_query = '''SELECT username, enabled from users_v2 where email = %s'''
+		fetch_query = '''SELECT username, enabled from user where email = %s'''
 		cur.execute(fetch_query, ([email]))
 		user_data = cur.fetchone()
 
@@ -224,7 +264,7 @@ def password_reset_token(token):
 
 		new_password = sha256_crypt.encrypt(str(form.password.data))
 		current_app.logger.info(new_password)
-		pass_query = '''UPDATE users_v2 SET password = %s WHERE email = %s'''
+		pass_query = '''UPDATE user SET password = %s WHERE email = %s'''
 		cur.execute(pass_query, (new_password, [email]))
 
 		mysql.connection.commit()
@@ -253,19 +293,21 @@ def login():
 		cur = mysql.connection.cursor()
 
 		#Get username
-		log_query_username = ''' select u.enabled, u.name, u.username, u.password, a.authority
-								 from users_v2 u join authorities a on a.user_id = u.user_id
-								  having u.username = %s '''
-		result = cur.execute(log_query_username, ([username]))
+		admin_login = '''select name, username, password, super_user, enabled from user where username = %s'''
+		# group_query = ''' select u.enabled, u.name, u.username, u.password, a.authority
+		# 						 from user u join authorities a on a.user_id = u.user_id
+		# 						  having u.username = %s '''
+		user_result = cur.execute(admin_login, ([username]))
 		user_data = cur.fetchone()
 
-		if result > 0:
+		if user_result > 0:
 			#get stored hash
 			users_name = user_data['name']
 			user_name = user_data['username']
 			user_pass = user_data['password']
-			member = user_data['authority']
+			super_user = user_data['super_user']
 			enabled = user_data['enabled']
+            
 			#Compare pass
 			if user_name:
 				if sha256_crypt.verify(form_pass, user_pass) == False:
@@ -279,17 +321,18 @@ def login():
 					# if username = user_name
 					session['logged_in'] = True
 					session['username'] = username
-					session['authority'] = member
+					#session['authority'] = member
 					session['name'] = users_name
+					session['super_user'] = super_user
 					#session['name'] = users_fullname
 
-					if session['authority'] in ['Admin', 'admin']:
+					if session['super_user'] is True:
 						flash('Welcome' + ' ' + users_name, 'success')
 						return redirect(url_for('cms.dashboard'))
 					else:
 						flash('Welcome ' + ' ' + users_name, 'success')
 						return redirect(url_for('site.dashboard'))
-					# return render_template('index.html')
+
 					mysql.connection.commit()
 			else:
 				error = '.'
@@ -306,27 +349,76 @@ def login():
 
 #Route to dashboard
 @mod.route('/dashboard')
-@login_required
+#@login_required
 @register_breadcrumb(mod, '.dashboard', 'Dashboard', order=4)
 def dashboard():
-	return render_template('site/dashboard.html')
+	cur = mysql.connection.cursor()
+	username = session['username']
+	query = """
+			select user_id from user where username=%s
+			"""
+	cur.execute(query,([username]))
+	_usr_id = cur.fetchone()
+	usr_id = _usr_id['user_id']
+	total_amt_data = get_total_bal(usr_id)
+	total_lent_data = get_lent_bal(usr_id)
+	total_expense_data = get_expense_bal(usr_id)
+	current_app.logger.info(total_amt_data)
+	data = {"total":total_amt_data, "lent":total_lent_data, "expense":total_expense_data}
+	
+	return render_template('site/dashboard.html', result=data)
 
+def get_total_bal(user_id):
+	cur = mysql.connection.cursor()
+	query = """
+			select sum(amount) as total_bal 
+			from transaction 
+			where user_id=%s
+			"""
+	cur.execute(query, ([user_id]))
+	data=cur.fetchone()
+	return data
+
+def get_lent_bal(user_id):
+	cur = mysql.connection.cursor()
+	query = """
+			select sum(you_lent) as lent_bal 
+			from transaction 
+			where user_id=%s
+			"""
+	cur.execute(query, ([user_id]))
+	data=cur.fetchone()
+	return data
+
+def get_expense_bal(user_id):
+	cur = mysql.connection.cursor()
+	query = """
+			select sum(your_share) as expense 
+			from transaction 
+			where user_id=%s
+			"""
+	cur.execute(query, ([user_id]))
+	data=cur.fetchone()
+	return data
 
 #Transaction prcess and routes to new transaction page
 @mod.route('/trans_form', methods= ['GET', 'POST'])
 @login_required
-@roles_required
-@register_breadcrumb(mod, '.trans_view.user_trans_view.trans_form', 'NewEntry', order=4)
+#@roles_required
+@register_breadcrumb(mod, '.trans_form', 'NewEntry', order=4)
 def TransactionEntry():
 	#Get user from db
 	cur = mysql.connection.cursor()
 
-	sql_user_auth_query = ''' SELECT u.user_id, u.name, u.username, a.authority
-							 from users_v2 u join authorities a on a.user_id = u.user_id
-							  having a.authority = %s or a.authority = %s '''
-	cur.execute(sql_user_auth_query, (['admin', 'member']))
+	group_id = session['group_id']
+	current_app.logger.info(group_id)
+	sql_user_auth_query = ''' select u.user_id, u.name, u.username, tg.group_name, ug.group_id
+								from user u join user_group ug on ug.user_id = u.user_id 
+								join tbl_group tg on ug.group_id = tg.group_id
+								having ug.group_id = %s; '''
+	cur.execute(sql_user_auth_query, ([group_id]))
 	result = cur.fetchall() 
-	current_app.logger.info(result)
+	
 
 	form = TransactionForm(request.form)
 	if request.method == 'POST' and form.validate():
@@ -334,43 +426,45 @@ def TransactionEntry():
 		manual_date = form.manual_date.data
 		item = form.item.data
 		#payer = form.payer.data
-		payer = request.form['payer']
+		#payer = request.form['payer']
 		amount = form.amount.data
 		#status = form.status.data
 		status = request.form['status']
-		current_app.logger.info(item) 
-		current_app.logger.info(payer) 
-		current_app.logger.info(status) 
-		#pulled list of users included in that transaction entry, which is ID of users
-		
+
+		user = session['username']
+		_usr_data = get_users_id([user])
+		usr_id = _usr_data['user_id']
+
 		selected_users = request.form.getlist('person')
 		current_app.logger.info(selected_users) 
 		
 		#create a cursor
 		if len(selected_users) == 0:
 			flash('Please select atleast one member!', 'danger')
-			redirect(url_for('site.TransactionEntry'))
+			#redirect(url_for('site.TransactionEntry', grp=group_id))
+			#render_template('site/transaction_form.html', form=form, grp=group_id)
 		# elif status is None:
 		# 	flash('Please choose a status!', 'danger')
 		# 	redirect(url_for('site.TransactionEntry'))
 		else:
 			cur = mysql.connection.cursor()
-			tran_form_insert_query = ''' INSERT INTO transaction(comment, item, payer, amount, status, manual_date)
-										 VALUES(%s, %s, %s, %s, %s, %s) '''
-			cur.execute(tran_form_insert_query, (comment, item, payer, amount, status, manual_date))
+			tran_form_insert_query = ''' INSERT INTO transaction(user_group_id, user_id, comment, item, amount, status, manual_date)
+										 VALUES(%s, %s, %s, %s, %s, %s, %s) '''
+			cur.execute(tran_form_insert_query, (group_id, usr_id, comment, item, amount, status, manual_date))
+			mysql.connection.commit()
 
-			tran_form_payer_id_query = ''' SELECT user_id from users_v2 where name LIKE %s '''
-			cur.execute(tran_form_payer_id_query, ([payer]))
+			# tran_form_payer_id_query = ''' SELECT user_id from user where name LIKE %s '''
+			# cur.execute(tran_form_payer_id_query, ([payer]))
 
 			#raw payer id
-			_payer_id = cur.fetchone()
-			current_app.logger.info(_payer_id)
+			# _payer_id = cur.fetchone()
+			# current_app.logger.info(_payer_id)
 
 			# usable Payer ID
-			payer_id = 0
-			for key, val in _payer_id.items():
-				payer_id += val
-			current_app.logger.info(payer_id)
+			# payer_id = 0
+			# for key, val in _payer_id.items():
+			# 	payer_id += val
+			# current_app.logger.info(payer_id)
 
 			#converted the user_id to integer by counting
 			list_count = []
@@ -399,7 +493,7 @@ def TransactionEntry():
 			current_app.logger.info(_lent)
 			
 			#fetch max transaction id from transaction table
-			tran_form_max_trans_id = ''' select MAX(id) from transaction '''
+			tran_form_max_trans_id = ''' select MAX(transaction_id) from transaction '''
 			cur.execute( tran_form_max_trans_id )
 			tran_id = cur.fetchone()
 
@@ -420,26 +514,27 @@ def TransactionEntry():
 			current_app.logger.info(zipAll)
 
 			for x, y, z in zipAll:
-			    format_str = """INSERT INTO user_transaction (user_id, id, share_amount)
-			    VALUES ({user_id}, '{id}', '{share_amount}'); """
+			    format_str = """INSERT INTO user_transaction (user_id, transaction_id, share_amount)
+			    VALUES ({user_id}, '{transaction_id}', '{share_amount}'); """
 
-			    sql_command = format_str.format(user_id=x, id=y, share_amount=z)
+			    sql_command = format_str.format(user_id=x, transaction_id=y, share_amount=z)
 			    current_app.logger.info(sql_command)
 			    cur.execute(sql_command)
 			
 			#Update the amt_lent column in user_transaction by matching the transaction id and user_id
-			tran_update_amtlent_query = ''' UPDATE user_transaction SET amt_lent=%s WHERE id = %s and user_id = %s '''
-			cur.execute(tran_update_amtlent_query, (_lent, tran_id_val, payer_id))
+			tran_update_amtlent_query = ''' UPDATE transaction SET you_lent=%s WHERE transaction_id = %s and user_id = %s '''
+			cur.execute(tran_update_amtlent_query, (_lent, tran_id_val, usr_id))
 
 			#Update the per_share in user_transaction by matching the transaction id and user_id
-			tran_update_pershare_query = ''' UPDATE user_transaction SET per_share=%s WHERE id = %s and user_id = %s '''
-			cur.execute(tran_update_pershare_query, (_share, tran_id_val, payer_id))
+			tran_update_pershare_query = ''' UPDATE transaction SET your_share=%s WHERE transaction_id = %s and user_id = %s '''
+			cur.execute(tran_update_pershare_query, (_share, tran_id_val, usr_id))
 
 			mysql.connection.commit()
 			#*********************
 
 			flash('Record inserted!', 'success')
-			redirect(url_for('site.TransactionEntry'))
+			#redirect(url_for('site.TransactionEntry', grp=group_id))
+			render_template('site/transaction_form.html', form=form, grp=group_id)
 
 			#close cursor
 			cur.close()
@@ -448,45 +543,43 @@ def TransactionEntry():
 
 
 #Transactions view process and route to transaction view page
-@mod.route('/trans_view')
-@register_breadcrumb(mod, '.trans_view', 'Transaction', order=2)
-@login_required
-def tran_view():
-	user = session['username']
-	cur = mysql.connection.cursor()
-	result = cur.execute("SELECT * FROM transaction order by status desc")
-	data = cur.fetchall()
+# @mod.route('/trans_view')
+# @register_breadcrumb(mod, '.trans_view.user_trans_view', 'Transaction', order=2)
+# @login_required
+# def tran_view():
+# 	user = session['username']
+# 	group_id = session['group_id']
+# 	cur = mysql.connection.cursor()
+# 	query = """SELECT * FROM transaction where user_group_id=%s order by status desc"""
+# 	result = cur.execute(query, ([group_id]))
+# 	data = cur.fetchall()
 
-	tran_view_query_user_role = ''' SELECT username, authority
-									 from users_v2 u join authorities a on u.user_id = a.user_id
-									  having username = %s '''
-	user_role = cur.execute(tran_view_query_user_role, ([user]))
+# 	return jsonify(data)
 
-	user_role_data = cur.fetchone()
-	user_auth = user_role_data['authority']
-
-	if result > 0 and user_auth in ['member', 'admin', 'Admin']:
-		return render_template('site/transactions.html', data=data)
-	else:
-		msg = 'No data found or you do not have enough privilege.'
-		return render_template('site/transactions.html', msg=msg)
+# 	# if result > 0:
+# 	# 	return render_template('site/transactions.html', data=data)
+# 	# else:
+# 	# 	msg = 'No records found.'
+# 	# 	return render_template('site/transactions.html', msg=msg)
 	
-	#commit
-	mysql.connection.commit()
-	#close conn
-	cur.close()
-	mysql.connection.close()
+# 	#commit
+# 	mysql.connection.commit()
+# 	#close conn
+# 	cur.close()
+# 	mysql.connection.close()
 
 
 #Transactions view process and route to transaction view page
-@mod.route('/user_trans_view')
+@mod.route('/user_trans_view', methods= ['GET', 'POST'])
 @register_breadcrumb(mod, '.trans_view.user_trans_view', 'TransDetail')
 @login_required
 def user_trans_view():
 	user = session['username']
 	cur = mysql.connection.cursor()
-
-
+	status = ''
+	if request.method == 'POST':
+		stat = request.form['status']
+		status += stat
 	# query = """ SELECT ut.user_id, sum(per_share) as per_share, sum(ut.share_amount) as amount, 
 	# 			sum(ut.amt_lent) as lent, u.name, u.username, t.status
 	# 			FROM user_transaction ut
@@ -499,48 +592,48 @@ def user_trans_view():
 	#result = cur.execute(query)
 	# result_1 = cur.fetchall()
 
-	query_trans = ''' SELECT ut.id, count(ut.user_id) as user_count, sum(ut.share_amount) as shr_amount, 
+	query_trans = ''' SELECT ut.id, t.entry_date, count(ut.user_id) as user_count, sum(ut.share_amount) as shr_amount, 
 						t.item, t.status, t.payer
-					  FROM user_transaction ut
-					   join transaction t on t.id = ut.id
-					   group by ut.id 
-					   having t.status LIKE 'unpaid%' 
-					   order by ut.id '''
-	result = cur.execute(query_trans)
+					FROM user_transaction ut
+					join transaction t on t.id = ut.id
+					group by ut.id 
+					having t.status LIKE %s 
+					order by ut.id '''
+	result = cur.execute(query_trans, ([status]))
 	result_2 = cur.fetchall()
 
 
 	query_lent_share_calc = ''' SELECT distinct ut.user_id, sum(ut.per_share) as per_share,
-					 sum(ut.amt_lent) as amt_lent, sum(ut.share_amount) as share_amt, u.name
+					sum(ut.amt_lent) as amt_lent, sum(ut.share_amount) as share_amt, u.name
 					from user_transaction as ut
 					inner join 
 					(
-					    select status, id
-					    from transaction
-					    WHERE status = 'unpaid'
+						select status, id
+						from transaction
+						WHERE status = %s
 					) as b
 					on ut.id=b.id
 					inner join 
 					(
-					    select user_id, name
-					    from users_v2
+						select user_id, name
+						from user
 					) as u
 					on ut.user_id=u.user_id
 					GROUP by ut.user_id 
 					order by u.name '''
-	cur.execute(query_lent_share_calc)
+	cur.execute(query_lent_share_calc, ([status]))
 	result_4 = cur.fetchall()
 
 	query_trans_new = """ SELECT SUM(amount) as amount, payer FROM transaction 
-						  WHERE status LIKE 'unpaid%'
-						  GROUP BY payer """
-	cur.execute(query_trans_new)
+						WHERE status LIKE %s
+						GROUP BY payer """
+	cur.execute(query_trans_new, ([status]))
 	result_3 = cur.fetchall()
 
 
 	tran_view_user_role = ''' SELECT username, authority 
-								from users_v2 u join authorities a on u.user_id = a.user_id
-								 having username = %s '''
+								from user u join authorities a on u.user_id = a.user_id
+								having username = %s '''
 	user_role = cur.execute(tran_view_user_role, ([user]))
 	user_role_data = cur.fetchone()
 	user_auth = user_role_data['authority']
@@ -562,7 +655,7 @@ def user_trans_view():
 #Change role of user -- not working yet
 @mod.route('/admin/edit_transaction/<string:id>', methods=['GET', 'POST'])
 @login_required
-@roles_required
+#@roles_required
 def edit_transaction(id):
 	form = EditTransForm(request.form)
 	cur = mysql.connection.cursor()
@@ -615,7 +708,7 @@ def edit_transaction(id):
 #Delete transaction
 @mod.route('/admin/delete_transaction/<string:id>', methods=['GET', 'POST'])
 @login_required
-@roles_required
+#@roles_required
 def delete_transaction(id):
 
 	cur = mysql.connection.cursor()

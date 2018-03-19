@@ -83,10 +83,12 @@ def roles_required(func):
         user = session['username']
         cur = mysql.connection.cursor()
         #Get username
-        result = cur.execute("select u.name, u.username, a.authority, u.password from users_v2 u join authorities a on a.user_id = u.user_id having u.username = %s", [user])
+        result = cur.execute("select super_user from user where username=%s", [user])
         user_data = cur.fetchone()
-        user_auth = user_data['authority']
-        if user_auth in ['Admin', 'admin']:
+
+        user_auth = user_data['super_user']
+
+        if user_auth > 0:
             return func(*args, **kwargs)
         else:
             flash('Access denied', 'danger')
@@ -115,7 +117,7 @@ def logout():
 @roles_required
 def viewusers():
 	cur = mysql.connection.cursor()
-	user_result = cur.execute("SELECT * FROM users_v2 u join authorities a on u.user_id = a.user_id")
+	user_result = cur.execute("SELECT * FROM user")
 	users_data = cur.fetchall()
 
 	if user_result > 0:
@@ -137,19 +139,19 @@ def viewusers():
 def editrole(user_id):
 	cur = mysql.connection.cursor()
 	cur_2 = mysql.connection.cursor()
-	user_result = cur.execute("SELECT * FROM users_v2 where user_id = %s", [user_id])
-	user_auth_result = cur_2.execute("SELECT * FROM authorities where user_id = %s", [user_id])
+	user_result = cur.execute("SELECT * FROM user where user_id = %s", [user_id])
+	#user_auth_result = cur_2.execute("SELECT * FROM authorities where user_id = %s", [user_id])
 	users_data = cur.fetchone()
-	user_auth = cur_2.fetchone()
+	#user_auth = cur_2.fetchone()
 
 	mysql.connection.commit()
 
 	form = EditUserForm(request.form)
 
 	form.enabled.data = users_data['enabled']
-	form.authority.data = user_auth['authority']
+	#form.authority.data = user_auth['authority']
 
-	return render_template('cms/edituser.html', u_data=users_data, u_auth=user_auth)
+	return render_template('cms/edituser.html', u_data=users_data)#, u_auth=user_auth)
 
 #Change role of user -- not working yet
 @mod.route('/admin/edituser/<string:user_id>', methods=['GET', 'POST'])
@@ -158,10 +160,10 @@ def editrole(user_id):
 def edituser(user_id):
 	cur = mysql.connection.cursor()
 	cur_2 = mysql.connection.cursor()
-	user_result = cur.execute("SELECT * FROM users_v2 where user_id = %s", [user_id])
-	user_auth_result = cur_2.execute("SELECT * FROM authorities where user_id = %s", [user_id])
+	user_result = cur.execute("SELECT * FROM user where user_id = %s", [user_id])
+	#user_auth_result = cur_2.execute("SELECT * FROM authorities where user_id = %s", [user_id])
 	users_data = cur.fetchone()
-	user_auth = cur_2.fetchone()
+	#user_auth = cur_2.fetchone()
 
 
 	mysql.connection.commit()
@@ -170,7 +172,7 @@ def edituser(user_id):
 	form.name.data = users_data['name']
 	form.username.data = users_data['username']
 	form.email.data = users_data['email']
-	form.authority.data = user_auth['authority']
+	#form.authority.data = user_auth['authority']
 
 	
 	if request.method == 'POST' and form.validate():
@@ -187,17 +189,17 @@ def edituser(user_id):
 
 		#cur.execute("update tablename set columnName = (?) where ID = (?) ",("test4","4"))
 
-		query_1 = ''' UPDATE users_v2 SET enabled = %s WHERE user_id = %s '''
+		query_1 = ''' UPDATE user SET enabled = %s WHERE user_id = %s '''
 		cur.execute(query_1, ([enabled], [user_id]))
 
-		query_2 = ''' UPDATE authorities SET authority = %s WHERE user_id = %s '''
-		cur.execute(query_2, ([authority], [user_id]))
+		#query_2 = ''' UPDATE authorities SET authority = %s WHERE user_id = %s '''
+		#cur.execute(query_2, ([authority], [user_id]))
 
 		# query_3 = ''' SELECT enabled from users_v2 where user_id = %s '''
 		# cur.execute(query_3, ([user_id]))
 
 		#enabled_new = cur.fetchone()
-		current_app.logger.info(enabled_new)
+		#current_app.logger.info(enabled_new)
 		mysql.connection.commit()
 
 		request.form['authority'] = authority
@@ -218,16 +220,15 @@ def deleteuser(user_id):
 	#app.logger.info([user_id])
 	
 	cur = mysql.connection.cursor()
-	cur_2 = mysql.connection.cursor()
-	cur.execute("DELETE FROM authorities WHERE user_id=%s", [user_id])
-	cur.execute("SELECT user_id, authority from authorities where user_id=%s", [user_id])
-	auth_table = cur.fetchone()
+	#cur.execute("DELETE FROM authorities WHERE user_id=%s", [user_id])
+	#cur.execute("SELECT user_id, authority from authorities where user_id=%s", [user_id])
+	#auth_table = cur.fetchone()
+	#mysql.connection.commit()
+
+	cur_2.execute("DELETE FROM users_v2 WHERE user_id=%s", [user_id])
 	mysql.connection.commit()
-	if auth_table is None:
-		cur_2.execute("DELETE FROM users_v2 WHERE user_id=%s", [user_id])
-		mysql.connection.commit()
-	else:
-		flash("Authority was not deleted", 'danger')
+
+
 	
 	cur.execute("SELECT user_id from users_v2 where user_id = %s", [user_id])
 	test = cur.fetchone()

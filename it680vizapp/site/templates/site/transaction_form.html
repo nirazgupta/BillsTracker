@@ -3,10 +3,14 @@
 {% block body %}
 	<script type="text/javascript" src="{{ url_for('site.static', filename='js/main.js') }}"></script>
 	
-	<div class="container">
-		<div class="row">
-			<div class="col-xs-12 col-md-8">	
+	<div class="row">
+			{% include 'site/includes/_vnavbar.html' %}
+		<div class="col-md-10 ">
+			<div class="col-sm-9 col-md-8">	
+				<div class="w3-container w3-teal">
 				<h3>New Transaction</h3>
+				</div>
+			</br>
 				{% from "site/includes/_formhelpers.html" import render_field %}
 				<form method="POST" action="" name="thisForm" id="transaction_form" onsubmit="return validateForm()">
 					
@@ -44,9 +48,12 @@
 						<input type="submit" class="btn btn-success" value="submit">								
 			</div>
 
-			<div class="col-xs-6 col-md-4">				
-					<h3>Include person</h3>
-					<table class="table table-bordered">
+
+			<div class="col-xs-3 col-md-4">	
+					<div class="w3-container w3-teal">			
+					<h3>Split with</h3>
+					</div>
+					<table class="w3-table-all w3-card">
 					  <thead>
 					    <tr>
 					      <th>Person</th>
@@ -56,7 +63,7 @@
 					  <tbody>
 					 	{% for item in data %}
 					   <tr>
-					     <td for="{{ item.user_id }}">{{ item.name }}</td>   
+							 <td for="{{ item.user_id }}" id="selectBox" onchange="changeFunc();">{{ item.name }}</td>
 					     <td><input type="checkbox" id="checkbox" name="person" value="{{ item.user_id }}"></td>
 					    {% endfor %}	
 					  </tr>
@@ -67,11 +74,19 @@
 			</form>		
 		</div>
 	</div>
+	<script type="text/javascript">
 
-	<footer class="py-5 bg-dark">
+		function changeFunc() {
+		 var selectBox = document.getElementById("selectBox");
+		 var selectedValue = selectBox.options[selectBox.selectedIndex].value;
+		 alert(selectedValue);
+		}
+	 </script>
+
+	<!-- <footer class="py-5 bg-dark">
 	      <p class="m-0 text-center text-white">Copyright &copy; MankatoExpenses 2017</p>
-	    <!-- /.container -->
-	 </footer>
+	    /.container
+	 </footer> -->
 
 {% endblock %}
 
