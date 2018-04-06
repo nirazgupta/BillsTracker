@@ -217,7 +217,7 @@ def deleteuser(user_id):
 	#auth_table = cur.fetchone()
 	#mysql.connection.commit()
 
-	cur_2.execute("DELETE FROM user WHERE user_id=%s", [user_id])
+	cur.execute("DELETE FROM user WHERE user_id=%s", [user_id])
 	mysql.connection.commit()
 
 
@@ -234,7 +234,6 @@ def deleteuser(user_id):
 	mysql.connection.commit()
 	#close conn
 	cur.close()
-	cur_2.close()
 	mysql.connection.close()
 
 
