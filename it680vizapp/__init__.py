@@ -4,7 +4,7 @@ from flask_mysqldb import MySQL
 from flask_breadcrumbs import Breadcrumbs
 from flask_mail import Mail, Message
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired
-from flask_googlecharts import GoogleCharts
+
 
 
 app = Flask(__name__)
