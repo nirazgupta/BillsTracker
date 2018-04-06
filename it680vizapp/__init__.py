@@ -8,7 +8,7 @@ from itsdangerous import URLSafeTimedSerializer, SignatureExpired
 
 
 app = Flask(__name__)
-app.config.from_object('config.ConfigSqlite')
+app.config.from_object('config.ProductionConfig')
 mysql = MySQL(app)
 
 Breadcrumbs(app=app)
