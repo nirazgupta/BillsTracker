@@ -182,30 +182,22 @@ def edituser(user_id):
 		elif stat == 'inactive':
 			enabled = 0
 				
-		current_app.logger.info(enabled)
-		# authority = request.form.get('authority')
-		current_app.logger.info(authority)
 		cur = mysql.connection.cursor()
-
-		#cur.execute("update tablename set columnName = (?) where ID = (?) ",("test4","4"))
 
 		query_1 = ''' UPDATE user SET enabled = %s WHERE user_id = %s '''
 		cur.execute(query_1, ([enabled], [user_id]))
 
-		#query_2 = ''' UPDATE authorities SET authority = %s WHERE user_id = %s '''
-		#cur.execute(query_2, ([authority], [user_id]))
+		query_3 = ''' SELECT enabled from users_v2 where user_id = %s '''
+		cur.execute(query_3, ([user_id]))
 
-		# query_3 = ''' SELECT enabled from users_v2 where user_id = %s '''
-		# cur.execute(query_3, ([user_id]))
+		enabled_new = cur.fetchone()
 
-		#enabled_new = cur.fetchone()
-		#current_app.logger.info(enabled_new)
 		mysql.connection.commit()
 
 		# request.form['authority'] = authority
 		#close conn
 		cur.close()
-		cur_2.close()
+
 		flash('Update successful', 'success')
 		# return redirect(url_for('cms.viewusers'))
 		return render_template('cms/edituser.html', form=form, status=enabled_new)
@@ -225,12 +217,12 @@ def deleteuser(user_id):
 	#auth_table = cur.fetchone()
 	#mysql.connection.commit()
 
-	cur_2.execute("DELETE FROM users_v2 WHERE user_id=%s", [user_id])
+	cur_2.execute("DELETE FROM user WHERE user_id=%s", [user_id])
 	mysql.connection.commit()
 
 
 	
-	cur.execute("SELECT user_id from users_v2 where user_id = %s", [user_id])
+	cur.execute("SELECT user_id from users where user_id = %s", [user_id])
 	test = cur.fetchone()
 	if test is None:
 		flash("User is Deleted", 'success')
