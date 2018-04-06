@@ -222,7 +222,7 @@ def deleteuser(user_id):
 
 
 	
-	cur.execute("SELECT user_id from users where user_id = %s", [user_id])
+	cur.execute("SELECT user_id from user where user_id = %s", [user_id])
 	test = cur.fetchone()
 	if test is None:
 		flash("User is Deleted", 'success')
