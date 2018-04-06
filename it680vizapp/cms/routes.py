@@ -27,7 +27,7 @@ def admin():
 		#login cursor
 		cur = mysql.connection.cursor()
 		#Get username
-		result = cur.execute("select u.name, u.username, a.authority, u.password from users_v2 u join authorities a on a.user_id = u.user_id having u.username = %s", [username])
+		result = cur.execute("select u.name, u.username, u.super_user, u.password from user u where u.username = %s", [username])
 		user_data = cur.fetchone()
 		
 		if result > 0:
@@ -35,7 +35,7 @@ def admin():
 			users_fullname = user_data['name']
 			user_name = user_data['username']
 			user_pass = user_data['password']
-			auth_data = user_data['authority']
+			super_user = user_data['super_user']
 
 			#Compare pass
 			if user_name:				
@@ -44,11 +44,11 @@ def admin():
 				# elif auth_data not in ['Admin', 'admin']:
 				# 	flash('Access denied, not sufficient privilege!', 'danger')
 				# 	return render_template('site/login.html')
-				else:
+				elif super_user:
 					# if username = user_name
 					session['logged_in'] = True
 					session['username'] = username
-					session['auth'] = auth_data
+					session['super_user'] = super_user
 
 					flash('Welcome Admin' , 'success')
 					return render_template('cms/dashboard.html', data=user_data)
