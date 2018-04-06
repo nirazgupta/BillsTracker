@@ -1,35 +1,40 @@
 {% extends 'site/layout.html' %}
 
 {% block body %}
-<div class="row">
-		{% include 'site/includes/_vnavbar.html' %}
-		
-		
-		
-		<div class="col-md-9 col-md-7" style="margin-left: 8px;">
-			<div class="w3-container w3-teal">
-				<div class="col-md-8">
-					<h1>Dashboard</h1>
-				</div>
-			  </div>
-		
-			   <table class="w3-table-all w3-card">
-				 <tbody>
-				   <tr>
-					 <td><p class="tran_view_text">Total balance</p><p class="tran_view_val">{{result.total.total_bal}}</p></td>
-					
-					 <td><p class="tran_view_text">Total lent</p><p class="tran_view_val">{{result.lent.lent_bal|abs}}</p></td>
-					 <td><p class="tran_view_text">Spent</p><p class="tran_view_val">{{result.expense.expense}}</p></td>
-					 {% if session.authority == 'admin' %}
-					  <td>              
-					  <a href="/admin/edit_transaction/{{item.id}}" class="btn btn-info btn-xs pull-left">Edit</a>
-					  <a href="/admin/delete_transaction/{{item.id}}" class="btn btn-danger btn-xs pull-left">Delete</a>            
-					  </td>
-					  {% endif %}
-				   </tr>
 
-				 </tbody>
-			   </table>
-			  </div>
+<div class="col-sm-2 sidenav">
+		{% include 'site/includes/_vnavbar.html' %}
+	  </div>
+
+<div class="col-sm-8 text-left"> 
+	<div class="w3-container w3-teal">
+		<div class="col-md-9">
+			<h1>Dashboard</h1>
 		</div>
+		</div>
+
+		<table class="w3-table-all w3-card">
+			<tbody>
+			<tr>
+			{% if result.total.total_bal %}
+				<td><p class="tran_view_text">Total Paid</p><p class="tran_view_val">${{result.total.total_bal}}</p></td>
+			{% else %}
+			<td><p class="tran_view_text">Total Paid</p><p class="tran_view_val">$0</p></td>
+			{% endif %}
+			{% if result.lent.lent_bal %}
+				<td><p class="tran_view_text">Total lent</p><p class="tran_view_val">${{result.lent.lent_bal|abs}}</p></td>
+			{% else %}
+			<td><p class="tran_view_text">Total lent</p><p class="tran_view_val">$0</p></td>
+			{% endif %}
+			{% if result.expense.shr_amount %}
+				<td><p class="tran_view_text">Spent</p><p class="tran_view_val">${{result.expense.shr_amount}}</p></td>
+				{% else %}
+				<td><p class="tran_view_text">Spent</p><p class="tran_view_val">$0</p></td>
+				{% endif %}
+			</tr>
+
+			</tbody>
+		</table>
+</div>
+		
 {% endblock %}

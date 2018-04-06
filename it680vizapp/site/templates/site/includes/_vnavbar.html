@@ -1,6 +1,53 @@
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
-    
+
+
+
+	<div class="card" >
+		<ul class="list-group list-group-flush">
+				<div class="list-group-item w3-blue-grey w3-hover-shadow ">
+					<div id="group_cell"><a id='group_menu' href="/dashboard" >Dashboard</a> 
+					</div>
+				</div>
+		</ul>
+	</div>
+
+	<div class="card" >
+			<ul class="list-group list-group-flush">
+					<div class="list-group-item w3-green w3-hover-shadow ">
+						<div id="group_cell">Group
+							<div class="w3-right"><a id='group_menu' href="/create_group" >Create</a></div>
+							<div class="w3-right"><a id='group_menu' href="/joingroup" >Join</a></div>
+						</div>
+					</div>
+			
+				<div id="mypanel">
+						<div class="scroll-box"></div>
+				</div>
+			
+			</ul>
+		</div>
+	
+
+	{% if session.group_id %}
+		<div class="card">
+				<div class="card-header">
+				</div>
+
+				<ul class="list-group list-group-flush">
+						<div class="list-group-item w3-green w3-hover-shadow ">
+							<div id="group_cell"><a id='group_menu' href="/viz" >Charts</a>
+							</div>
+							</div>
+						<div id="mypanel"></div>
+				</ul>
+			</div>
+		
+	{% endif %}
+
+
+
+<!-- 
     <div class="col-sm-3 col-md-2 sidebar">
 	      <div class="navbar " role="navigation">
 	        <div class="navbar-header">
@@ -10,20 +57,9 @@
 	            <span class="icon-bar"></span>
 	            <span class="icon-bar"></span>
 	          </button>
-	          <span class="visible-xs navbar-brand">Sidebar menu</span>
 	        </div>
 
-	        <!-- <div class="navbar-collapse collapse sidebar-navbar-collapse">
-	          <ul class="nav navbar-nav">
-	            	<li><a id='usr_dash_li' href="#">Dashboard</a></li>
-                <li><a id='usr_trans_li' href="#">Transactions</a></li>
-                <li><a id='usr_create_group_lis' href="/create_group" >Create Group</a></li>
-                <li><a id='usr_join_group_lis' href="/joingroup" >Join a Group</a></li>
-								<li><a id='usr_view_group_lis' href="/show_group" >View Groups</a></li>
-						
-	          </ul>
-					</div>
-					 -->
+	        <div class="navbar-collapse collapse sidebar-navbar-collapse">
 				<div class="card" style="width: 18rem;">
 					<div class="card-header">
 					</div>
@@ -35,6 +71,8 @@
 							</div>
 					</ul>
 				</div>
+			</div>
+			<div class="navbar-collapse collapse sidebar-navbar-collapse">
 				<div class="card" style="width: 18rem;">
 						<div class="card-header">
 						</div>
@@ -42,32 +80,30 @@
 						<ul class="list-group list-group-flush">
 								<div class="list-group-item w3-green w3-hover-shadow ">
 									<div id="group_cell">Group
-										<div class="w3-right"><a id='group_menu' href="/create_group" >Add</a></div>
+										<div class="w3-right"><a id='group_menu' href="/create_group" >Create</a></div>
 										<div class="w3-right"><a id='group_menu' href="/joingroup" >Join</a></div>
 									</div>
 									</div>
 								<div id="mypanel"></div>
-					
-							
 						</ul>
 					</div>
-
+				</div>
+				{% if session.group_id %}
+				<div class="navbar-collapse collapse sidebar-navbar-collapse">
 					<div class="card" style="width: 18rem;">
 							<div class="card-header">
 							</div>
 	
 							<ul class="list-group list-group-flush">
 									<div class="list-group-item w3-green w3-hover-shadow ">
-										<div id="group_cell">Group
-											<div class="w3-right"><a id='group_menu' href="/create_group" >Add</a></div>
-											<div class="w3-right"><a id='group_menu' href="/joingroup" >Join</a></div>
+										<div id="group_cell"><a id='group_menu' href="/viz" >Charts</a>
 										</div>
 										</div>
 									<div id="mypanel"></div>
-						
-								
 							</ul>
 						</div>
 					</div>
+				{% endif %}
+				</div>
         </div>
-
+ -->

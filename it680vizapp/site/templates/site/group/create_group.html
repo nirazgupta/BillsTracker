@@ -2,27 +2,25 @@
 
 {% block body %}
 	{% from "site/includes/_formhelpers.html" import render_field %}
-<div class="row">
-	{% include 'site/includes/_vnavbar.html' %}
-	
-<div class="col-md-7 " id="create_group" >
-	
-	<script type="text/javascript" src="{{ url_for('site.static', filename='js/main.js') }}"></script>
-	<link rel="stylesheet" type="text/css" href="{{ url_for('site.static', filename='css/stylesheet.css') }}">		
+
+<div class="col-sm-2 sidenav">
+{% include 'site/includes/_vnavbar.html' %}
+</div>
+
+
+<div class="col-sm-8 text-left"> 
+
 	<div class="w3-container w3-teal">
 		<h1>Create your group</h1>
 	</div>
 	</br>
-		<form method="POST" action="" name="creategroup" id="group" onsubmit="return validate()">
-			<div class="form-group" >
-				<label>Choose a name</label>
-				<input type="text" name="group_name" id="form_css1" class="form-control" placeholder="Group name" value="{{request.form.group_name}}">
-				<b id="useralert"></b>
-			</div>
-			<p><input type="submit" class="btn btn-success" value="submit" ></p>
-		</form>
-		
-	</div>
+	<form method="POST" action="" name="creategroup" id="group" onsubmit="return validate()">
+		<div class="form-group" >
+			<label>Choose a name</label>
+			<input type="text" name="group_name" id="form_css1" class="form-control" placeholder="Group name" value="{{request.form.group_name}}">
+			<b id="useralert"></b>
+		</div>
+		<p><input type="submit" class="btn btn-success" value="submit" ></p>
+	</form>	
 </div>
-
 {% endblock %}

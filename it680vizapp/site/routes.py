@@ -1,4 +1,4 @@
-from flask import Flask, Blueprint
+from flask import Flask, Blueprint, jsonify
 from flask import Flask, render_template, flash, redirect, url_for, g, session, logging, request
 from passlib.hash import sha256_crypt
 from functools import wraps
@@ -12,7 +12,9 @@ from flask import current_app
 from flask_breadcrumbs import register_breadcrumb, default_breadcrumb_root
 import pandas as pd
 import json
+import datetime as dt
 from flask_paginate import Pagination, get_page_parameter
+
 #from wapy.api import Wapy
 #from walmart_api_client import WalmartApiClient
 import pandas.io.sql as psql
@@ -25,17 +27,27 @@ mod = Blueprint('site', __name__, template_folder='templates', static_url_path='
 default_breadcrumb_root(mod, '.')
 
 
+def login_required(f):
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        if 'logged_in' in session:
+            return f(*args, **kwargs)
+        else:
+        	flash('Not logged in, Please login first.','danger')
+        	return redirect(url_for('site.login'))
+    return wrap
+
 #Index route 
 @mod.route('/')
 # @register_breadcrumb(mod, '.', 'Home')
 def index():
-	return render_template('site/viz.html')
+	return render_template('site/index.html')
 
 #Site homepage route
 @mod.route('/home')
 @register_breadcrumb(mod, '.', 'Home', order=0)
 def home():
-	return render_template('site/viz.html')
+	return render_template('site/index.html')
 
 
 #Site about page route
@@ -54,49 +66,108 @@ def contact():
 def viz():
 	return render_template('site/viz.html')
 
+
 @mod.route('/getdata')
+@login_required
 def getdata():
 	conn = mysql.connection
 	cur = mysql.connection.cursor()
+	group_id = session['group_id']
+	
+	query_trans = ''' SELECT sum(ut.share_amount) as amount, t.item
+					FROM user_transaction ut
+					join transaction t on t.transaction_id = ut.transaction_id
+					where t.group_id = %s
+					group by t.item
+					order by t.item '''
 
-	query_trans = ''' SELECT ut.id, count(ut.user_id) as user_count, sum(ut.share_amount) as shr_amount, 
-						t.item, t.status, t.payer
-					  FROM user_transaction ut
-					   join transaction t on t.id = ut.id
-					   group by ut.id 
-					   having t.status LIKE 'unpaid%' 
-					   order by ut.id '''
+	cur.execute(query_trans, group_id)
+	result = cur.fetchall()
+	# current_app.logger.info(result)
+	# current_app.logger.info(result)
 
-	df2 = psql.read_sql(query_trans, conn)
-	df_to_json2 = df2.to_json(orient='records')
-	res= current_app.logger.info(df2)
-	result = cur.execute(query_trans)
-	result_2 = cur.fetchall()
-	#products = Wapy.search('xbox')
+	#df2 = psql.read_sql(query_trans, group_id, conn)
+	#df_to_json2 = df2.to_json(orient='records')
+
+	#result = cur.execute(query_trans)
 	cur.close()
+	return jsonify(result)
 
-	return json.dumps(df_to_json2)
+@mod.route('/get_user_chart_data')
+@login_required
+def get_user_chart_data():
+	conn = mysql.connection
+	cur = mysql.connection.cursor()
+	group_id = session['group_id']
+	
+	query_trans = ''' SELECT  u.fname as name, u.user_id, sum(ut.share_amount) as amount
+					FROM user u
+					join user_transaction ut on ut.user_id = u.user_id
+					join transaction t on t.transaction_id = ut.transaction_id
+					where t.group_id = %s
+					group by u.fname
+					order by u.fname '''
+	cur.execute(query_trans, group_id)
+	result = cur.fetchall()
+	cur.close()
+	return jsonify(result)
+
+@mod.route('/get_user_chart_data2', methods=['GET', 'POST'])
+@login_required
+def get_user_chart_data2():
+	if request.method == 'POST':
+		user_id = request.form['user']
+		conn = mysql.connection
+		cur = mysql.connection.cursor()
+		group_id = session['group_id']
+		
+		query_trans = ''' SELECT sum(ut.share_amount) as amount, t.item
+					FROM user_transaction ut
+					join transaction t on t.transaction_id = ut.transaction_id
+					where t.group_id = %s and ut.user_id = %s
+					group by t.item
+					order by t.item '''
+		cur.execute(query_trans, ([group_id, user_id]))
+		result = cur.fetchall()
+		current_app.logger.info(result)
+		cur.close()
+		return jsonify(result)
 
 
+@mod.route('/lineChart', methods=['GET', 'POST'])
+@login_required
+def lineChart():
+	if request.method == 'POST':
+		user_id = request.form['user']
+		conn = mysql.connection
+		cur = mysql.connection.cursor()
+		group_id = session['group_id']
+		
+		query_trans = ''' SELECT  u.fname as name, t.manual_date as date, ut.share_amount as amount
+						FROM user u
+						join user_transaction ut on ut.user_id = u.user_id
+						join transaction t on t.transaction_id = ut.transaction_id
+						where t.group_id = %s and ut.user_id = %s
+						order by t.manual_date
+						'''
 
+		cur.execute(query_trans, ([group_id, user_id]))
+		result = cur.fetchall()
 
-
-
-
-
+		format_data = []
+		for item in result:
+			name = item['name']
+			date = item['date'].strftime('%Y-%m-%d %H:%M')
+			amount = item['amount']
+			format_data.append({'name':name, 'date': date, 'amount':amount})
+		current_app.logger.info(format_data)
+		cur.close()
+		return jsonify(format_data)
 
 ############### BELOW ARE CODE FOR USER AUTH, EXPENSE MANAGEMENT ########################
 
 #Wrap session for logged in access to pages
-def login_required(f):
-    @wraps(f)
-    def wrap(*args, **kwargs):
-        if 'logged_in' in session:
-            return f(*args, **kwargs)
-        else:
-        	flash('Not logged in, Please login first.','danger')
-        	return redirect(url_for('site.login'))
-    return wrap
+
 
 #wrapper for setting role based access for site
 # def roles_required(func):
@@ -171,7 +242,7 @@ def register():
 				email_msg.body = 'Your link is {}'.format(link)
 				mail.send(email_msg)
 
-				flash('Resistration Successful!', 'success')
+				flash('Resistration Successful. Please check your email for activation.', 'success')
 				return render_template('site/index.html', data=token)
 			#redirect(url_for('site.index'))
 
@@ -349,7 +420,7 @@ def login():
 
 #Route to dashboard
 @mod.route('/dashboard')
-#@login_required
+@login_required
 @register_breadcrumb(mod, '.dashboard', 'Dashboard', order=4)
 def dashboard():
 	cur = mysql.connection.cursor()
@@ -363,7 +434,7 @@ def dashboard():
 	total_amt_data = get_total_bal(usr_id)
 	total_lent_data = get_lent_bal(usr_id)
 	total_expense_data = get_expense_bal(usr_id)
-	current_app.logger.info(total_amt_data)
+	current_app.logger.info(total_expense_data)
 	data = {"total":total_amt_data, "lent":total_lent_data, "expense":total_expense_data}
 	
 	return render_template('site/dashboard.html', result=data)
@@ -373,7 +444,7 @@ def get_total_bal(user_id):
 	query = """
 			select sum(amount) as total_bal 
 			from transaction 
-			where user_id=%s
+			where user_id=%s and status='unpaid'
 			"""
 	cur.execute(query, ([user_id]))
 	data=cur.fetchone()
@@ -383,8 +454,8 @@ def get_lent_bal(user_id):
 	cur = mysql.connection.cursor()
 	query = """
 			select sum(you_lent) as lent_bal 
-			from transaction 
-			where user_id=%s
+			from transaction  
+			where user_id=%s and status='unpaid'
 			"""
 	cur.execute(query, ([user_id]))
 	data=cur.fetchone()
@@ -393,19 +464,21 @@ def get_lent_bal(user_id):
 def get_expense_bal(user_id):
 	cur = mysql.connection.cursor()
 	query = """
-			select sum(your_share) as expense 
-			from transaction 
-			where user_id=%s
+			select sum(share_amount) as shr_amount 
+			from user_transaction ut join transaction t 
+			on t.transaction_id = ut.transaction_id
+			where ut.user_id=%s and status='unpaid'
 			"""
 	cur.execute(query, ([user_id]))
 	data=cur.fetchone()
+	current_app.logger.info(data)
 	return data
 
 #Transaction prcess and routes to new transaction page
 @mod.route('/trans_form', methods= ['GET', 'POST'])
 @login_required
 #@roles_required
-@register_breadcrumb(mod, '.trans_form', 'NewEntry', order=4)
+# @register_breadcrumb(mod, '.trans_form', 'NewEntry', order=4)
 def TransactionEntry():
 	#Get user from db
 	cur = mysql.connection.cursor()
@@ -422,7 +495,7 @@ def TransactionEntry():
 
 	form = TransactionForm(request.form)
 	if request.method == 'POST' and form.validate():
-		comment = form.comment.data
+		comment = form.description.data
 		manual_date = form.manual_date.data
 		item = form.item.data
 		#payer = form.payer.data
@@ -436,36 +509,19 @@ def TransactionEntry():
 		usr_id = _usr_data['user_id']
 
 		selected_users = request.form.getlist('person')
-		current_app.logger.info(selected_users) 
+		current_app.logger.info(item) 
 		
 		#create a cursor
 		if len(selected_users) == 0:
 			flash('Please select atleast one member!', 'danger')
-			#redirect(url_for('site.TransactionEntry', grp=group_id))
-			#render_template('site/transaction_form.html', form=form, grp=group_id)
-		# elif status is None:
-		# 	flash('Please choose a status!', 'danger')
-		# 	redirect(url_for('site.TransactionEntry'))
 		else:
 			cur = mysql.connection.cursor()
-			tran_form_insert_query = ''' INSERT INTO transaction(user_group_id, user_id, comment, item, amount, status, manual_date)
+			tran_form_insert_query = ''' INSERT INTO transaction(group_id, user_id, comment, item, amount, status, manual_date)
 										 VALUES(%s, %s, %s, %s, %s, %s, %s) '''
 			cur.execute(tran_form_insert_query, (group_id, usr_id, comment, item, amount, status, manual_date))
 			mysql.connection.commit()
 
-			# tran_form_payer_id_query = ''' SELECT user_id from user where name LIKE %s '''
-			# cur.execute(tran_form_payer_id_query, ([payer]))
-
-			#raw payer id
-			# _payer_id = cur.fetchone()
-			# current_app.logger.info(_payer_id)
-
-			# usable Payer ID
-			# payer_id = 0
-			# for key, val in _payer_id.items():
-			# 	payer_id += val
-			# current_app.logger.info(payer_id)
-
+		
 			#converted the user_id to integer by counting
 			list_count = []
 			for users in selected_users:
@@ -542,32 +598,6 @@ def TransactionEntry():
 	return render_template('site/transaction_form.html', form=form, data=result)
 
 
-#Transactions view process and route to transaction view page
-# @mod.route('/trans_view')
-# @register_breadcrumb(mod, '.trans_view.user_trans_view', 'Transaction', order=2)
-# @login_required
-# def tran_view():
-# 	user = session['username']
-# 	group_id = session['group_id']
-# 	cur = mysql.connection.cursor()
-# 	query = """SELECT * FROM transaction where user_group_id=%s order by status desc"""
-# 	result = cur.execute(query, ([group_id]))
-# 	data = cur.fetchall()
-
-# 	return jsonify(data)
-
-# 	# if result > 0:
-# 	# 	return render_template('site/transactions.html', data=data)
-# 	# else:
-# 	# 	msg = 'No records found.'
-# 	# 	return render_template('site/transactions.html', msg=msg)
-	
-# 	#commit
-# 	mysql.connection.commit()
-# 	#close conn
-# 	cur.close()
-# 	mysql.connection.close()
-
 
 #Transactions view process and route to transaction view page
 @mod.route('/user_trans_view', methods= ['GET', 'POST'])
@@ -580,17 +610,6 @@ def user_trans_view():
 	if request.method == 'POST':
 		stat = request.form['status']
 		status += stat
-	# query = """ SELECT ut.user_id, sum(per_share) as per_share, sum(ut.share_amount) as amount, 
-	# 			sum(ut.amt_lent) as lent, u.name, u.username, t.status
-	# 			FROM user_transaction ut
-	# 			join users_v2 u on ut.user_id = u.user_id 
-	# 			join transaction t on t.id=ut.id
-	# 			group by ut.user_id
-	# 			having t.status LIKE 'new%'
-	# 			order by u.name  """
-
-	#result = cur.execute(query)
-	# result_1 = cur.fetchall()
 
 	query_trans = ''' SELECT ut.id, t.entry_date, count(ut.user_id) as user_count, sum(ut.share_amount) as shr_amount, 
 						t.item, t.status, t.payer
@@ -652,91 +671,123 @@ def user_trans_view():
 
 
 
+#Update status of transaction
+@mod.route('/update_status', methods=['GET', 'POST'])
+@login_required
+def update_status():
+	if request.method == 'POST':
+		get_status = request.form['status']
+		transaction_id = request.form['transaction_id']
+		conn = mysql.connection
+		cur = mysql.connection.cursor()
+		group_id = session['group_id']
+		
+		# query_trans = ''' SELECT sum(ut.share_amount) as amount, t.item
+		# 			FROM user_transaction ut
+		# 			join transaction t on t.transaction_id = ut.transaction_id
+		# 			where t.group_id = %s and ut.user_id = %s
+		# 			group by t.item
+		# 			order by t.item '''
+		# cur.execute(query_trans, ([group_id, user_id]))
+		# result = cur.fetchall()
+		current_app.logger.info(get_status)
+		current_app.logger.info(transaction_id)
+		# cur.close()
+		return 'Success'
+
+
+
+
 #Change role of user -- not working yet
-@mod.route('/admin/edit_transaction/<string:id>', methods=['GET', 'POST'])
+@mod.route('/edit_transaction/<string:transaction_id>', methods=['GET', 'POST'])
 @login_required
 #@roles_required
-def edit_transaction(id):
-	form = EditTransForm(request.form)
+def edit_transaction(transaction_id):
+	form = TransactionForm(request.form)
+	group_id = session['group_id']
+
 	cur = mysql.connection.cursor()
-	tran_result = cur.execute("SELECT * FROM transaction where id = %s", [id])
+	tran_result = cur.execute("SELECT * FROM transaction where transaction_id = %s", ([transaction_id]))
 	tran_data = cur.fetchone()
 	
-	form.comment.data = tran_data['comment']
+	form.description.data = tran_data['comment']
 	form.manual_date.data = tran_data['manual_date']
 	form.item.data = tran_data['item']
-	form.payer.data = tran_data['payer']
-	form.amount.data = tran_data['amount']
 	form.status.data = tran_data['status']
 	
 
 	if request.method == 'POST' and form.validate():
 		status = request.form['status']
-		comment = request.form['comment']
-		tran_id = tran_data['id']
+		comment = request.form['description']
 		new_date = request.form['manual_date']
 		new_item = request.form['item']
-		new_payer = request.form['payer']
-		new_amount = request.form['amount']
 
 		current_app.logger.info(new_date)
 		current_app.logger.info(new_item)
-		current_app.logger.info(new_payer)
-		current_app.logger.info(new_amount)
+
 
 		cur = mysql.connection.cursor()
 
-		status_update_query = ''' UPDATE transaction SET status=%s, comment=%s, item=%s, payer=%s, amount=%s, manual_date=%s
-		 WHERE id = %s '''
-		cur.execute(status_update_query, (status, comment , new_item, new_payer, new_amount, new_date, tran_id,))
-
-		update_query_2 = ''' UPDATE transaction SET status=%s,
-		 WHERE id = %s '''
+		status_update_query = ''' UPDATE transaction SET status=%s, comment=%s, item=%s, manual_date=%s WHERE transaction_id = %s '''
+		cur.execute(status_update_query, (status, comment , new_item, new_date, transaction_id))
 
 
-
-		#cur.execute("DELETE FROM user_transaction where id=%s", ([tran_id]))
-		
 		mysql.connection.commit()
-		#close conn
 		cur.close()
 		flash('Update successful', 'success')
-		return redirect(url_for('site.tran_view'))
+		return redirect(url_for('group.transactions', group_id=group_id))
 	return render_template('site/edit_transaction.html', form=form)
 
 
 #Delete transaction
-@mod.route('/admin/delete_transaction/<string:id>', methods=['GET', 'POST'])
+@mod.route('/delete_transaction/<string:transaction_id>', methods=['GET', 'POST'])
 @login_required
 #@roles_required
-def delete_transaction(id):
+def delete_transaction(transaction_id):
+
+	username = session['username']
+	_usr_data = get_users_id([username])
+	usr_id = _usr_data['user_id']
+
+	group_id = session['group_id']
+
+	current_app.logger.info(group_id)
 
 	cur = mysql.connection.cursor()
-	cur.execute("DELETE FROM transaction WHERE id=%s", [id])
-	cur.execute("DELETE FROM user_transaction WHERE id=%s", [id])
-	mysql.connection.commit()
+	query = """ select user_id, group_id, group_admin
+				from user_group 
+				where user_id=%s and group_id=%s """
+	cur.execute(query, ([usr_id, group_id]))
+	result = cur.fetchone()
+	current_app.logger.info(result['group_admin'])
 
-	cur.execute("SELECT * FROM transaction where id = %s", [id])
-	deleted_id = cur.fetchone()
-	if deleted_id is None:
-		flash("Transaction is deleted", 'success')
-		return redirect(url_for('site.tran_view'))
-	else:
-		flash("Query is not working", 'danger')
-		return redirect(url_for('site.tran_view'))
+	if result['group_admin'] == 1:
+		
+		# Create a trigger to keep record of deleted transactions
 
+		cur.execute("DELETE FROM user_transaction WHERE transaction_id=%s", [transaction_id])
+		cur.execute("DELETE FROM transaction WHERE transaction_id=%s", [transaction_id])
 		mysql.connection.commit()
-		#close conn
-		cur.close()
-		flash('Update successful', 'success')
-		return redirect(url_for('site.tran_view'))
-	return render_template('site/edit_transaction.html', form=form)
+
+		cur.execute("SELECT * FROM transaction where transaction_id = %s", [id])
+		deleted_id = cur.fetchone()
+		if deleted_id is None:
+			flash("Transaction is deleted", 'success')
+			return redirect(url_for('group.transactions', group_id=group_id))
+		else:
+			flash("Query is not working", 'danger')
+			return redirect(url_for('group.transactions', group_id=group_id))
+	flash('You cannot delete this bill', 'danger')
+	return redirect(url_for('group.transactions', group_id=group_id))
 
 
 #Logout process by clearing session
 @mod.route('/logout')
 def logout():
+	# for key in session.keys():
+	# 	session.pop(key)
 	session.clear()
+
 	flash('You are logged out', 'success')
 	return redirect(url_for('site.login'))
 

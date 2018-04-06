@@ -24,16 +24,16 @@ class RegisterForm(Form):
 # 	status = StringField('Status', [validators.Length(min=1, max=15)])
 
 class TransactionForm(Form):
-	comment = StringField('Comment', render_kw={"placeholder": "Enter a comment, if any!"})
+	description = StringField('Description', render_kw={"placeholder": "Enter a description, if any!"})
 	manual_date = DateField('Date', format='%Y-%m-%d') 
 	#DateField('entry_date', format='%y/%m/%d')
 	item = StringField('Item', [validators.DataRequired(),validators.Length(min=3, max=50)], render_kw={"placeholder": "Name of Item or Activity"})
-	payer = StringField('Paid by', [validators.DataRequired()], render_kw={"placeholder": "Name of the payer"})
+	#payer = StringField('Paid by', [validators.DataRequired()], render_kw={"placeholder": "Name of the payer"})
 	amount = DecimalField('Amount', places=2, render_kw={"placeholder": "Enter the amount"})
 	status = StringField('Status', [validators.DataRequired()], render_kw={"placeholder": "Enter 'new' for status "})
 
 class EditTransForm(Form):
-	comment = StringField('Comment')
+	description = StringField('Description')
 	manual_date = DateField('Date', format='%Y-%m-%d') 
 	#DateField('entry_date', format='%y/%m/%d')
 	item = StringField('Item', [validators.DataRequired(),validators.Length(min=3, max=50)])

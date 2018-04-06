@@ -1,58 +1,62 @@
 {% extends 'site/layout.html' %}
 
 {% block body %}
-<div class="row">
-        {% include 'site/includes/_vnavbar.html' %}
-        {% from "site/includes/_formhelpers.html" import render_field %}
+{% from "site/includes/_formhelpers.html" import render_field %}
 
-<div class="col-md-9 ">
-        <div class="w3-container w3-teal">
-            <h1>Join a group</h1>
+<div class="col-sm-2 sidenav">
+		{% include 'site/includes/_vnavbar.html' %}
+</div>
+
+<div class="col-sm-8 text-left"> 
+    <div class="w3-container w3-teal">
+        <h1>Join a group</h1>
+    </div>
+    <form method="POST" action="" id="tbl_groups1">  
+    <div class="row">
+    <div class="form-group">
+        <div class="col-sm-7">
+            <input type="text" placeholder="status" name="search_group", class="form-control">
         </div>
-<form method="POST" action="" id="tbl_groups1">  
-  <div class="row">
-  <div class="form-group">
-      <div class="col-sm-7">
-          <input type="text" placeholder="status" name="search_group", class="form-control">
-      </div>
-  
-  <div class="form-group">
-      <div class="col-sm-2">
-          <input type="submit" value="SEARCH" class="btn btn-primary btn-block">
-      </div>
-      </div>
-  </form>
-  </div>
+    
+    <div class="form-group">
+        <div class="col-sm-2">
+            <input type="submit" value="SEARCH" class="btn btn-primary btn-block">
+        </div>
+        </div>
+    </form>
+    </div>
 
-<div class="row"></div>
-<br/>
-<div class="col-md-12 ">
-       <table class="table table-bordered">
-         <thead>
-           <tr>
-				<th>Group Name</th>
-				<th>Owner</th>
-				<th>Action</th>
-           </tr>
-         </thead>
-         <tbody>
-         	{% for item in data %}
-           <tr>
-				<td>{{item.group_name}}</td>
-				<td>{{item.name}}</td>
-				<td class="user_btn">
-					<form action="/add_to_the_group" method="POST">
-						<input type="hidden" name="group_id" value="{{item.group_id}}">
-						<input type="hidden" name="user_id" value="{{item.user_id}}">
-
-						<input type="submit" value="Join" class="btn btn-warning btn-xs" id="join_group">
-
-					</form>
-				</td>
+    <div class="row"></div>
+    <br/>
+    <div class="col-md-12 ">
+        <table class="table table-bordered">
+            <thead>
+            <tr>
+                    <th>Group Name</th>
+                    <th>Owner</th>
+                    <th>Action</th>
             </tr>
-           {% endfor %}         
-         </tbody>
-      </table>
-	</div>
+            </thead>
+            <tbody>
+                {% for item in data %}
+            <tr>
+                    <td>{{item.group_name}}</td>
+                    <td>{{item.name}}</td>
+                    <td class="user_btn">
+                        <form action="/add_to_the_group" method="POST">
+                            <input type="hidden" name="group_id" value="{{item.group_id}}">
+                            <input type="hidden" name="user_id" value="{{item.user_id}}">
+
+                            <input type="submit" value="Join" class="btn btn-warning btn-xs" id="join_group">
+
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}         
+            </tbody>
+        </table>
+        </div>
+    </div>
+    <div class="col-md-3"></div>
 </div>
 {% endblock %}

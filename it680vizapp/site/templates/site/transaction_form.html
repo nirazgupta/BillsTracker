@@ -2,14 +2,14 @@
 
 {% block body %}
 	<script type="text/javascript" src="{{ url_for('site.static', filename='js/main.js') }}"></script>
-	
-	<div class="row">
+	<div class="col-sm-2 sidenav">
 			{% include 'site/includes/_vnavbar.html' %}
-		<div class="col-md-10 ">
-			<div class="col-sm-9 col-md-8">	
-				<div class="w3-container w3-teal">
+		</div>
+
+		<div class="col-sm-8 text-left"> 
+			<div class="w3-container w3-teal">
 				<h3>New Transaction</h3>
-				</div>
+			</div>
 			</br>
 				{% from "site/includes/_formhelpers.html" import render_field %}
 				<form method="POST" action="" name="thisForm" id="transaction_form" onsubmit="return validateForm()">
@@ -20,21 +20,13 @@
 						<div class="form-group">
 							{{render_field(form.item, class_="form-control")}}
 						</div>
-						<div class="form-group">
-							<label>Payer</label>
-							<select class="form-control" name="payer">
-							  <option value="" disabled selected>Select your option</option>	
-							  {% for item in data %}
-							  <option value="{{ item.name }}">{{ item.name }}</option>
-							  {% endfor %}
-							</select>
-						</div>
+					
 						<div class="form-group">
 							{{render_field(form.amount, class_="form-control")}}
 						</div>
 
 						<div class="form-group">
-							{{render_field(form.comment, class_="form-control")}}
+							{{render_field(form.description, class_="form-control")}}
 						</div>
 						<div class="form-group">
 							<label>Status</label>
@@ -45,11 +37,13 @@
 							  <option value="pending">Pending</option>
 							</select>							
 						</div>
-						<input type="submit" class="btn btn-success" value="submit">								
-			</div>
+						<input type="submit" class="btn btn-success" value="submit">			
+					</div>	
+							
+	{% endblock %}
 
-
-			<div class="col-xs-3 col-md-4">	
+	{% block right_nav %}
+	<div class="col-sm-2">
 					<div class="w3-container w3-teal">			
 					<h3>Split with</h3>
 					</div>
@@ -72,8 +66,9 @@
 					</table>
 
 			</form>		
-		</div>
-	</div>
+		</div>	
+		{% endblock %}
+
 	<script type="text/javascript">
 
 		function changeFunc() {
@@ -88,10 +83,6 @@
 	    /.container
 	 </footer> -->
 
-{% endblock %}
 
-{% block footer %}
-	
-{% endblock %}
 
 

@@ -2,6 +2,121 @@
 /* #group_id {
     margin-left: 20px;
 } */
+/* .scroll-box {
+     height: 160px; overflow: scroll; cursor: grab; cursor : -o-grab; cursor : -moz-grab; cursor : -webkit-grab;
+} */
+/* Line chart */
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+
+
+.line {
+  fill: none;
+  stroke: steelblue;
+  stroke-width: 1.5px;
+}
+
+.overlay {
+  fill: none;
+  pointer-events: all;
+}
+
+.focus circle {
+  fill: none;
+  stroke: steelblue;
+}
+
+.group_menu_left {
+    float: left;
+}
+
+.group_menu_right {
+    float: right;
+}
+
+#barChart {
+	position:absolute;
+	top:30px;
+	left:450px;
+	
+}
+#pieChart {
+    position:absolute;
+	top:50px;
+	left:70px;
+	
+}
+
+#linechart{
+    position:absolute;
+	top:450px;
+	left:100px;
+}
+
+.piechart_text {
+    font-size: 12px;
+}
+
+.slice {
+    font-size: 12pt;
+    font-family: Verdana;
+    fill: white; 
+    font-weight: bold;	
+           }
+
+
+
+.axis {
+    font: 10px sans-serif;
+  }
+  
+  .axis path,
+  .axis line {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+    stroke-width: 1px;
+  }
+
+  .toolTip {
+    position: absolute;
+    display: none;
+    min-width: 80px;
+    height: auto;
+    background: none repeat scroll 0 0 #ffffff;
+    border: 1px solid #6F257F;
+    padding: 14px;
+    text-align: center;
+  }
+
+.group_td a {
+    color: rgb(47, 87, 80);
+    font-weight: 100px;
+}
+
+.group_td a :hover{
+    text-decoration-style: none;
+}
+
+
+
+.scroll-box::-webkit-scrollbar {
+    width: 0px;  /* remove scrollbar space */
+    background: transparent;  /* optional: just make scrollbar invisible */
+}
+/* optional: show position indicator in red */
+.scroll-box::-webkit-scrollbar-thumb {
+    background: rgb(255, 255, 255);
+}
+
+.tran_edit_delete {
+    padding-top: 1.5em;
+}
 
 .tran_view_val.owes{
     font-weight: bold;
@@ -9,6 +124,11 @@
 }
 .owes_share {
     color: crimson;
+}
+
+.hidden_row_div {
+    display: inline-block;
+    padding: 10px;
 }
 
 .hidden_row td p
@@ -27,6 +147,11 @@
 {
  display:none;
 
+}
+
+.group_td.left-scroll {
+    overflow-y: auto;
+    height: 20px;
 }
 
 .scroll-box {
@@ -51,6 +176,11 @@
     font-size: 150%;
 }
 
+.people_names {
+    font-size: 16px;
+    color: slategrey;
+    font-family: cursive;
+}
 
 .tran_view_text{
     font-size: 12px;
@@ -192,25 +322,49 @@ input[type="checkbox"] {
 }
 
 
+/* Main navbar */
+.navbar {
+    margin-bottom: 0;
+    border-radius: 0;
+  }
 
-/* make sidebar nav vertical */ 
-@media (min-width: 768px) {
-  .sidebar-nav .navbar .navbar-collapse {
-    padding: 0;
-    max-height: none;
+/* make sidebar nav vertical */
+
+
+
+#sidebar {
+ 
+    height:100%;
+    position:fixed;
+    right:0;
   }
-  .sidebar-nav .navbar ul {
-    float: none;
+
+
+.toggler{
+    padding-top: 10px;
+}
+
+/* Set height of the grid so .sidenav can be 100% (adjust as needed) */
+.row.content {height: 450px}
+    
+/* Set gray background color and 100% height */
+.sidenav {
+  /* padding-top: 20px; */
+  height: 100%;
+}
+
+/* Set black background color, white text and some padding */
+footer {
+  background-color: #555;
+  color: white;
+  padding: 15px;
+}
+
+/* On small screens, set height to 'auto' for sidenav and grid */
+@media screen and (max-width: 767px) {
+  .sidenav {
+    height: auto;
+    padding: 15px;
   }
-  .sidebar-nav .navbar ul:not {
-    display: block;
-  }
-  .sidebar-nav .navbar li {
-    float: none;
-    display: block;
-  }
-  .sidebar-nav .navbar li a {
-    padding-top: 12px;
-    padding-bottom: 12px;
-  }
+  .row.content {height:auto;} 
 }

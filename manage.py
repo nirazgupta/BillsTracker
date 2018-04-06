@@ -68,31 +68,31 @@ def create_tables():
     transaction = '''
                 CREATE TABLE IF NOT EXISTS transaction (
                 transaction_id INT(11) NOT NULL AUTO_INCREMENT,
-                user_group_id INT(11) NOT NULL,
+                group_id INT(11) NOT NULL,
+                user_id int(11) NOT NULL,
                 entry_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 comment VARCHAR(150) NULL DEFAULT NULL,
                 item VARCHAR(100) NULL DEFAULT NULL,
-                payer VARCHAR(50) NULL DEFAULT NULL,
                 amount DECIMAL(10,2) NULL DEFAULT NULL,
+                you_lent decimal(10,0) DEFAULT NULL,
+                your_share decimal(10,0) DEFAULT NULL,
                 status VARCHAR(15) NULL DEFAULT NULL,
                 manual_date DATE NULL DEFAULT NULL,
                 PRIMARY KEY (transaction_id),
-                CONSTRAINT group_transaction_ibfk_2 FOREIGN KEY (user_group_id) REFERENCES user_group (user_group_id) ON DELETE CASCADE ON UPDATE CASCADE);
+                CONSTRAINT group_transaction_ibfk_2 FOREIGN KEY (group_id) REFERENCES user_group (group_id) ON DELETE CASCADE ON UPDATE CASCADE);
     '''
 
     user_transaction = '''
-                        CREATE TABLE IF NOT EXISTS user_transaction (
-                        user_id INT(11) NOT NULL,
-                        transaction_id INT(11) NOT NULL,
-                        share_amount DECIMAL(10,2) NOT NULL,
-                        amt_lent DECIMAL(10,2) NULL DEFAULT NULL,
-                        per_share DECIMAL(10,2) NULL DEFAULT NULL,
-                        PRIMARY KEY (user_id, transaction_id),
-                        INDEX fk_tran_id(transaction_id ASC),
-                        CONSTRAINT user_transaction_ibfk_1 FOREIGN KEY (user_id) REFERENCES user (user_id) ON DELETE CASCADE ON UPDATE CASCADE,
-                        CONSTRAINT user_transaction_ibfk_2 FOREIGN KEY (transaction_id) REFERENCES transaction (transaction_id) ON DELETE CASCADE ON UPDATE CASCADE);
+            CREATE TABLE IF NOT EXISTS user_transaction (
+            user_id INT(11) NOT NULL,
+            transaction_id INT(11) NOT NULL,
+            share_amount DECIMAL(10,2) NOT NULL,
+            PRIMARY KEY (user_id, transaction_id),
+            INDEX fk_tran_id(transaction_id ASC),
+            CONSTRAINT user_transaction_ibfk_1 FOREIGN KEY (user_id) REFERENCES user (user_id) ON DELETE CASCADE ON UPDATE CASCADE,
+            CONSTRAINT user_transaction_ibfk_2 FOREIGN KEY (transaction_id) REFERENCES transaction (transaction_id) ON DELETE CASCADE ON UPDATE CASCADE);
 
-                    '''
+        '''
     
     cur.execute(user)
     cur.execute(groups)

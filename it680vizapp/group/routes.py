@@ -80,7 +80,7 @@ def get_users_id(arg):
 def check_user_in_group(arg1, arg2):
 	cur = mysql.connection.cursor()
 	query = '''
-				select user_group_id from user_group where user_id=%s and group_id=%s
+				select group_id from user_group where user_id=%s and group_id=%s
 			'''
 	cur.execute(query, ([arg1], [arg2]))
 	user_data = cur.fetchall()
@@ -195,12 +195,14 @@ def transactions(group_id):
 	group_trans = tran_view()
 	group_total = group_trans_details()
 	user_group_total = user_trans_details()
+	user_expense = get_expense_bal2()
 
-	current_app.logger.info(group_total)
-	data = {"group_people":grp_result, "trans":group_trans, "group":group_name, "group_total":group_total, "user_group_total":user_group_total}
+	current_app.logger.info(user_expense)
+	data = {"group_people":grp_result, "trans":group_trans, "group":group_name, "group_total":group_total, 
+			"user_group_total":user_group_total}
 
 	if group_trans is not None:
-		return render_template('site/transactions.html', data=data)
+		return render_template('site/transactions.html', data=data, user_expense=user_expense)
 	else:
 		msg = 'No records found.'
 		return render_template('site/transactions.html', msg=msg)
@@ -210,12 +212,13 @@ def tran_view():
 	user = session['username']
 	group_id = session['group_id']
 	cur = mysql.connection.cursor()
-	query = """SELECT Distinct t.transaction_id, t.item, t.manual_date, t.amount, t.you_lent, t.your_share, u.name, 
-					t.status FROM transaction t
+	query = """SELECT Distinct t.transaction_id, t.item, t.manual_date,
+	 			t.amount, t.you_lent, t.your_share, u.name, 
+				t.status FROM transaction t
 				join user u on u.user_id = t.user_id
-				where t.user_group_id=%s order by t.status desc, t.manual_date
+				where t.group_id=%s order by t.status desc, t.manual_date
 				"""
-	result = cur.execute(query, (group_id))
+	result = cur.execute(query, ([group_id]))
 	data = cur.fetchall()
 	return data
 
@@ -225,9 +228,9 @@ def group_trans_details():
 	query = """
 			select sum(amount) as total
 			from transaction t 
-			where user_group_id=%s
+			where group_id=%s and t.status='unpaid'
 			"""
-	cur.execute(query, (group_id))
+	cur.execute(query, ([group_id]))
 	
 	data = cur.fetchall()
 	
@@ -243,14 +246,32 @@ def user_trans_details():
 
 	cur = mysql.connection.cursor()
 	query = """
-			select sum(amount) as total
+			select sum(amount) as total, sum(you_lent) as lent
 			from transaction t 
-			where user_group_id=%s and user_id=%s
+			where group_id=%s and user_id=%s and t.status='unpaid'
 			"""
 	cur.execute(query, (group_id, usr_id))
 	data = cur.fetchall()
 	return data
 
+def get_expense_bal2():
+	user = session['username']
+	group_id = session['group_id']
+	user = session['username']
+
+	usr_data = get_users_id([user])
+	usr_id = usr_data['user_id']
+	
+	cur = mysql.connection.cursor()
+	query = """
+			select sum(share_amount) as shr_amount 
+			from user_transaction ut join transaction t 
+			on t.transaction_id = ut.transaction_id
+			where ut.user_id=%s and group_id=%s and t.status='unpaid'
+			"""
+	cur.execute(query, ([usr_id, group_id]))
+	data=cur.fetchone()
+	return data
 
 
 @mod.route('/owings/<string:transaction_id>', methods=['GET', 'POST'])
@@ -271,8 +292,6 @@ def owed_users(transaction_id):
 	cur.execute(query, ([transaction_id], [transaction_id]))
 	data = cur.fetchall()
 	#converted=Convert(data, dic)
-	current_app.logger.info(transaction_id)
-	current_app.logger.info(data)
 	return jsonify(data)
 
 
@@ -303,9 +322,7 @@ def add_to_the_group():
 		if_usr_in_grp = check_user_in_group(usr_id, grp_id)
 	
 		if if_usr_in_grp:
-			flash('You have already joined this group')
-			#msg = 'You have already joined this group.'
-			#return render_template('site/group/add_to_group.html', msg=msg, check_user=if_usr_in_grp)
+			flash('You have already joined this group', 'danger')
 			return redirect(url_for('group.joingroup'))
 		else:
 			add_user_to_group = """
@@ -313,7 +330,137 @@ def add_to_the_group():
 								"""
 			cur.execute(add_user_to_group, (grp_id, usr_id))
 			mysql.connection.commit()
-			msg = 'Welcome to the group.'
-			return render_template('site/group/add_to_group.html', msg=msg, check_user=if_usr_in_grp)
+			flash('Welcome to the group', 'success')
+			return redirect(url_for('group.joingroup'))
 	return render_template('site/group/add_to_group.html')
 
+
+
+
+@mod.route('/leave_group/<string:group_id>', methods=['GET', 'POST'])
+@login_required
+def leave_group(group_id):
+	cur = mysql.connection.cursor()
+
+	user = session['username']
+
+	usr_data = get_users_id([user])
+	usr_id = usr_data['user_id']
+
+	check_balance = """
+							select DISTINCT sum(t.amount) as t_amount, sum(ut.share_amount) as ut_share
+							from transaction t join user_transaction ut 
+							on ut.transaction_id=t.transaction_id
+							where ut.user_id=%s and t.status = 'unpaid' and t.group_id=%s
+							"""
+	cur.execute(check_balance, ([usr_id, group_id]))
+
+	result = cur.fetchone()
+
+	get_transaction_id = """
+							select transaction_id 
+							from transaction 
+							where group_id = %s and user_id =%s
+							"""
+	cur.execute(get_transaction_id, ([group_id, usr_id]))
+	result2 = cur.fetchall()
+
+	get_user_transaction_id = """
+							select *
+							from user_transaction 
+							where group_id = %s and user_id =%s
+							"""
+	cur.execute(get_transaction_id, ([group_id, usr_id]))
+	result3 = cur.fetchall()
+
+	t_amount = result['t_amount']
+	ut_share = result['ut_share']
+
+
+	if ut_share is not None:
+		flash('You have pending balance in the group.' +'   ' + '$' +str(ut_share), 'success')
+		current_app.logger.info(result3)
+	elif result2 and result3:
+		
+		try:
+			transaction_id = []
+			for i in result2:
+				transaction_id.append(i['transaction_id'])
+	
+			del_from_user_transaction = '''
+									DELETE FROM USER_TRANSACTION
+									where transaction_id=%s and user_id=%s
+									'''
+			cur.execute(del_from_user_transaction, ([transaction_id, usr_id]))
+			mysql.connection.commit()
+
+			del_from_transaction = '''
+									DELETE FROM TRANSACTION
+									where group_id=%s and user_id=%s
+									'''
+			cur.execute(del_from_transaction, ([group_id, usr_id]))
+			mysql.connection.commit()
+
+			del_from_user_group = '''
+								DELETE FROM USER_GROUP
+								WHERE GROUP_ID=%s and USER_ID=%s
+								'''
+			cur.execute(del_from_user_group, ([group_id, usr_id]))
+			mysql.connection.commit()
+
+
+			check_users_in_grp = '''
+										select user_id
+										from user_group
+										where group_id = %s
+									'''
+			cur.execute(check_users_in_grp, ([group_id]))
+			user_fetch_result = cur.fetchall()
+				
+
+			if not user_fetch_result:
+				cur = mysql.connection.cursor()
+				del_group = '''
+							DELETE FROM tbl_group
+							where group_id=%s
+								'''
+				cur.execute(del_group, ([group_id]))
+				mysql.connection.commit()
+				# flash('You have successfully left the group.')
+
+		except mysql.connection.Error as err:
+			print("Something went wrong: {}".format(err))
+			mysql.connection.rollback()
+			cur.close()
+
+	else:
+
+		del_from_user_group = '''
+								DELETE FROM USER_GROUP
+								WHERE GROUP_ID=%s and USER_ID=%s
+								'''
+		cur.execute(del_from_user_group, ([group_id, usr_id]))
+		mysql.connection.commit()
+
+
+		check_users_in_grp = '''
+									select user_id
+									from user_group
+									where group_id = %s
+								'''
+		cur.execute(check_users_in_grp, ([group_id]))
+		user_fetch_result = cur.fetchall()
+			
+
+		if not user_fetch_result:
+			cur = mysql.connection.cursor()
+			del_group = '''
+						DELETE FROM tbl_group
+						where group_id=%s
+							'''
+			cur.execute(del_group, ([group_id]))
+			mysql.connection.commit()
+			flash('You have successfully left the group.', 'success')
+			return redirect(url_for('site.dashboard'))
+		# flash('there is no record')
+	return redirect(url_for('site.dashboard'))

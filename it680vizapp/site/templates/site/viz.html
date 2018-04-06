@@ -2,28 +2,24 @@
 
 {% block body %}
 
-    <div class="container">
-      <select id="nest_input">
-          <option value="DECISION_NET">Chart by decision net</option>
-          <option value="DESCRIPTION">Chart by description</option>
-      </select>
-  <div id="event"></div>
+<div class="col-sm-2 sidenav">
+		{% include 'site/includes/_vnavbar.html' %}
 </div>
 
-  <!-- Footer -->
-  <footer class="py-5 bg-dark">
-      <p class="m-0 text-center text-white">Copyright &copy; MankatoExpenses 2017</p>
-    <!-- /.container -->
-  </footer>
+<div class="col-sm-8 text-left"> 
+<div id="pieChart"></div>
+<div id="barChart"></div>  
+<div id="linechart"></div>  
+</div>
 
 
-	<link src="{{ url_for('site.static', filename='js/viz.js') }}">
-<script>
-//user_count_chart();
-
-
-
+<script>  dsPieChart();
+          dsBarChart1();
+          
 </script>
+<script src="http://dimplejs.org/dist/dimple.v2.3.0.min.js"></script>
+{% endblock %}
 
+{% block right_nav %}
 
 {% endblock %}

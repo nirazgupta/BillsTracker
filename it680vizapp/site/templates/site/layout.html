@@ -3,44 +3,52 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Mankato Expenses</title>
+	<title>BillsTracker</title>
 	<link rel="stylesheet" type="text/css" href="{{ url_for('site.static', filename='css/stylesheet.css') }}">
 	<link rel="stylesheet" type="text/css" href="{{ url_for('site.static', filename='css/w3.css') }}">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-
-	<!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> -->
-
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 	<script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
 	<link src="{{ url_for('site.static', filename='js/bootstrap.bundle.min.js') }}">
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.13.0/d3.min.js"></script>
+	
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.0.0/d3.min.js"></script>
 	<script  src="https://cdnjs.cloudflare.com/ajax/libs/dimple/2.3.0/dimple.latest.min.js"></script>
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js"></script>
-	<!-- <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js"></script>
-	 -->
+	 <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
 	 <script src="https://code.angularjs.org/1.3.12/angular.js" ></script>
 	 <script type="text/javascript" src="{{ url_for('site.static', filename='js/main.js') }}"></script>
-	
+	 <script type="text/javascript" src="{{ url_for('site.static', filename='js/ng-infinite-scroll.min.js') }}"></script>
+	 <script type="text/javascript" src="{{ url_for('site.static', filename='js/viz.js') }}"></script>
+	 <script defer src="https://use.fontawesome.com/releases/v5.0.8/js/solid.js" integrity="sha384-+Ga2s7YBbhOD6nie0DzrZpJes+b2K1xkpKxTFFcx59QmVPaSA8c7pycsNaFwUK6l" crossorigin="anonymous"></script>
+	 <script defer src="https://use.fontawesome.com/releases/v5.0.8/js/fontawesome.js" integrity="sha384-7ox8Q2yzO/uWircfojVuCQOZl+ZZBg2D2J5nkpLqzH1HY0C1dHlTKIbpRz/LG23c" crossorigin="anonymous"></script>
 	<link rel="stylesheet" type="text/css" href="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/css/jquery.dataTables.css">
 </head>
 <body>
-	{% include 'site/includes/_navbar.html' %}
 	
-	<div class="container" >
-		<div class="breadcrumb">
+{% include 'site/includes/_navbar.html' %}
+
+<div class="container-fluid">   
+	{% include 'site/includes/_messages.html' %}
+	<div class="row content">
+
+	{% block body %}
+	
+	{% endblock %}
+	
+
+	{% block right_nav %}
+	{% endblock %}
+	</div>
+</div>
+	  
+		<!-- <div class="breadcrumb">
 	        {%- for breadcrumb in breadcrumbs -%}
 	            <a href="{{ breadcrumb.url }}">{{ breadcrumb.text }}</a>
 	            {{ ' | ' if not loop.last }}
 	        {%- endfor -%}
-		</div>
-
-	{% include 'site/includes/_messages.html' %}
+		</div> -->
 	
-	{% block body %}
-	{% include 'site/includes/_vnavbar.html' %}
-	{% endblock %}
-	</div>
+	
 	
 	
 </body>

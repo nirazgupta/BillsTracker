@@ -2,135 +2,154 @@
 
 {% block body %}
 
-<div class="row">
 
-  {% include 'site/includes/_vnavbar.html' %}
+  <div class="col-sm-2 sidenav">
+    {% include 'site/includes/_vnavbar.html' %}
+  </div>
+ 
 
-<div class="col-md-9 col-md-7" style="margin-left: 8px;">
-    
+  <div class="col-sm-8 text-left"> 
     <div class="w3-container w3-teal">
         <div class="col-md-8">
           {% for item in data['group'] %}
           <h1>{{item.group_name|title}}</h1>
           {% endfor %}
         </div>
-       
+        
         <div class="col-md-3"><a href="/trans_form" class="btn btn-success btn-float-right">New bill</a>
         </div>
-      </div>
+    </div>
+    
+    <div class="scroll-box">
+    <div ng-controller="MyController">
       
-      <div class="scroll-box">
-        <div ng-controller="MyController">
-       <table class="w3-table-all w3-card">
-         <tbody>
-         	{% for item in data['trans'] %}
-           <tr class="transaction_display" onclick="show_hide_row('{{item.transaction_id}}');" id="trans_dis" data-value="{{item.transaction_id}}">
+          <table id="transaction_table" class="w3-table-all w3-card">
+          <tbody>
+           {% for item in data['trans'] %}
+          
+           <tr class="transaction_display" onclick="show_hide_row('{{item.transaction_id}}');" data-value="{{item.transaction_id}}">
             
-            <td class="tran_view_date group_id" >{{item.manual_date}}</td>
-             <!-- <td><p class="tran_view_text">Item</p><p class="tran_view_val">{{item.item}}</p></td> -->
+            <td class="tran_view_date group_id" >{{item.manual_date.strftime('%B, %y')}}</td>
+             <!-- <td><p class="tran_view_text">Item</p><p class="tran_view_val">{{item.item}}</p></td> class="scroll-box"-->
              <td class="tran_view_date group_id">{{item.item|title}}</td> 
              <td><p class="tran_view_text">Paid by</p><p class="tran_view_val">{{item.name|title}}</p></td>
              <td><p class="tran_view_text">Total paid</p><p class="tran_view_val">${{item.amount}}</p></td>
+             {% if item.you_lent %}
              <td><p class="tran_view_text ">Money lent</p><p class="tran_view_val owes">${{item.you_lent|abs}}</p></td>
-             <td><p class="tran_view_text">Status</p><p class="tran_view_val">{{item.status}} </p></td> 
-             {% if session.authority == 'admin' %}
-              <td>              
-              <a href="/admin/edit_transaction/{{item.id}}" class="btn btn-info btn-xs pull-left">Edit</a>
-              <a href="/admin/delete_transaction/{{item.id}}" class="btn btn-danger btn-xs pull-left">Delete</a>            
+             {% else %}
+             <td><p class="tran_view_text ">Money lent</p><p class="tran_view_val owes">$0</p></td>
+            {% endif %}
+             <td>
+                <p class="tran_view_text">Status</p><p class="tran_view_val" contenteditable='true'>{{item.status}}</p></td> 
+         
+              <!-- <td class="transaction_display" onclick="show_hide_row('{{item.transaction_id}}');" id="trans_dis" data-value="{{item.transaction_id}}"><i class="fas fa-plus"></i></td> -->
+
+              <td>  
+              <p  class="tran_edit_delete"> 
+                     
+              <a href="/edit_transaction/{{item.transaction_id}}"><i class="fas fa-edit"></i></a>
+              <a href="/delete_transaction/{{item.transaction_id}}"><i class="fas fa-trash-alt"></i></a>     
+              </p>      
               </td>
-              {% endif %}
-              
            </tr>
 
            <tr id="{{item.transaction_id}}" class="hidden_row" >
-              <td>
-                <div>
+              <td colspan="5">
+                <div class="hidden_row_div">
                    <p ng-repeat="data in Content">[[data.name|capitalize]]</p>                   
                 </div>
-              </td>
-              <td >
+
+                <div class="hidden_row_div">
                 <p ng-repeat="data in Content">owes</p>
-              </td>
-              <td>
-                <div>
+                </div>
+
+                <div class="hidden_row_div">
                   <p class="owes_share" ng-repeat="data in Content">$[[data.share_amount]]</p>
                 </div>
               </td>           
             </tr>
           </div>
-           
-           {% endfor %}
-         </tbody>
-         
+           {% endfor %}  
+        </tbody>
        </table>
-       </div>
+      </div></div></div>
+    {% endblock %}
+  
+
+{% block right_nav %}
+  <div class="col-sm-2">
+      <table class="w3-table-all w3-card" >
+      <div class="w3-teal">
+        <thead>
+          <th>People in group</th>
+        </thead>
       </div>
+        <tbody>
+          {% for item in data['group_people'] %}
+          <tr>
+          <td class="people_names">{{item.name}}</td>
+          </tr>
+          {% endfor %}
+          
+        </tbody>
+      </table>     
+ 
+      <table class="w3-table-all w3-card" >
+      <div class=" w3-teal">
+        <thead>
+          <th colspan="2">Group Expense</th>
+        </thead>
       </div>
+        <tbody>
+          {% for item in data['group_total'] %}
+          <tr>
+          <td class="people_names">Total:</td>
+          {% if item.total %}
+          <td class="tran_view_val">${{item.total}}</td>
+          {% else %}
+          <td class="tran_view_val">$0</td>
+          {% endif %}
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table> 
 
-     
-    <div class="col-md-9 col-md-2 ">
-    <div id="show_users">
-      
-        <table class="w3-table-all w3-card" >
-        <div class="w3-container w3-teal">
-          <thead>
-            <th>People in group</th>
-          </thead>
-        </div>
-          <tbody>
-            {% for item in data['group_people'] %}
-            <tr>
-            <td>{{item.name}}</td>
+      <table class="w3-table-all w3-card" >
+      <div class="w3-teal">
+        <thead>
+          <th colspan="2">Your summary</th>
+        </thead>
+      </div>
+        <tbody>
+          {% for item in data['user_group_total'] %}
+          <tr>
+          <td class="people_names">Your total:</td>
+          {% if item.total %}
+          <td class="tran_view_val"> ${{item.total}}</td>
+          {% else %}
+          <td class="tran_view_val"> $0</td>
+          {% endif %}
+          </tr>
+          <tr>
+          <td class="people_names">Lent:</td>
+          {% if item.lent %}
+          <td class="tran_view_val owes"> ${{item.lent|abs}}</td>
+          {% else %}
+          <td class="tran_view_val owes"> $0</td>
+          {% endif %}
+          </tr>
+          {% endfor %}
+
+          <tr>
+            <td class="people_names">You owe:</td>
+            {% if user_expense.shr_amount %}
+            <td class="tran_view_val">${{user_expense.shr_amount}}</td>
+            {% else %}
+            <td class="tran_view_val">$0</td>
+            {% endif %}
             </tr>
-            {% endfor %}
-            
-          </tbody>
-        </table>     
-    </div>   
-  </div>
-
-
-<div class="col-md-9 col-md-2 ">
-    <div id="show_users">
-      
-        <table class="w3-table-all w3-card" >
-        <div class="w3-container w3-teal">
-          <thead>
-            <th>Group Expense</th>
-          </thead>
-        </div>
-          <tbody>
-            {% for item in data['group_total'] %}
-            <tr>
-            <td>Total:  ${{item.total}}</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-        
+        </tbody>
+      </table>
     </div>
-</div>
 
-<div class="col-md-9 col-md-2 ">
-    <div id="show_users">
-        <table class="w3-table-all w3-card" >
-        <div class="w3-container w3-teal">
-          <thead>
-            <th>You Spent</th>
-          </thead>
-        </div>
-          <tbody>
-            {% for item in data['user_group_total'] %}
-            <tr>
-            <td>Total:  ${{item.total}}</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-        
-    </div>
-</div>
-
-</div>
-</div>
 {% endblock %}

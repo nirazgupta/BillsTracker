@@ -183,7 +183,7 @@ def edituser(user_id):
 			enabled = 0
 				
 		current_app.logger.info(enabled)
-		authority = request.form.get('authority')
+		# authority = request.form.get('authority')
 		current_app.logger.info(authority)
 		cur = mysql.connection.cursor()
 
@@ -202,7 +202,7 @@ def edituser(user_id):
 		#current_app.logger.info(enabled_new)
 		mysql.connection.commit()
 
-		request.form['authority'] = authority
+		# request.form['authority'] = authority
 		#close conn
 		cur.close()
 		cur_2.close()
