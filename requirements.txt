@@ -57,7 +57,7 @@ py==1.5.2
 pycryptodome==3.4.11
 pymongo==2.8
 PyMySQL==0.7.11
-pypiwin32==220
+pypiwin32
 pystache==0.5.4
 pytest==3.4.0
 python-dateutil==2.6.1
