@@ -85,7 +85,7 @@ def getdata():
 					group by t.item
 					order by t.item '''
 
-	cur.execute(query_trans, group_id)
+	cur.execute(query_trans, ([group_id])
 	result = cur.fetchall()
 	# current_app.logger.info(result)
 	# current_app.logger.info(result)
@@ -111,7 +111,7 @@ def get_user_chart_data():
 					where t.group_id = %s
 					group by u.fname
 					order by u.fname '''
-	cur.execute(query_trans, group_id)
+	cur.execute(query_trans, ([group_id])
 	result = cur.fetchall()
 	cur.close()
 	return jsonify(result)
