@@ -37,13 +37,6 @@ def login_required(f):
         	return redirect(url_for('site.login'))
     return wrap
 
-@mod.before_request
-def before_request():
-    if request.url.startswith('http://'):
-        url = request.url.replace('http://', 'https://', 1)
-        code = 301
-        return redirect(url, code=code)
-
 #Index route 
 @mod.route('/')
 # @register_breadcrumb(mod, '.', 'Home')
@@ -75,7 +68,6 @@ def viz():
 
 
 @mod.route('/getdata')
-@mod.before_request
 @login_required
 def getdata():
 	conn = mysql.connection
@@ -102,7 +94,6 @@ def getdata():
 	return jsonify(result)
 
 @mod.route('/get_user_chart_data')
-@mod.before_request
 @login_required
 def get_user_chart_data():
 	conn = mysql.connection
@@ -122,7 +113,6 @@ def get_user_chart_data():
 	return jsonify(result)
 
 @mod.route('/get_user_chart_data2', methods=['GET', 'POST'])
-@mod.before_request
 @login_required
 def get_user_chart_data2():
 	if request.method == 'POST':
@@ -145,7 +135,6 @@ def get_user_chart_data2():
 
 
 @mod.route('/lineChart', methods=['GET', 'POST'])
-@mod.before_request
 @login_required
 def lineChart():
 	if request.method == 'POST':
@@ -180,10 +169,32 @@ def lineChart():
 #Wrap session for logged in access to pages
 
 
+#wrapper for setting role based access for site
+# def roles_required(func):
+#     @wraps(func)
+#     def wrapper(*args, **kwargs):
+#         user = session['username']
+#         cur = mysql.connection.cursor()
+#         #Get username
+#         role_query_statement = ''' select u.name, u.username, g.group_name, g.group_id, u.password
+#         						 from user u join user_group g on g.user_id = u.user_id 
+#         						 having u.username = %s '''
+
+#         result = cur.execute(role_query_statement, [user])
+        
+#         user_data = cur.fetchone()
+#         user_auth = user_data['authority']
+#         if user_auth in ['Admin', 'admin', 'member']:
+#             return func(*args, **kwargs)
+#         else:
+#             flash('You do not have access to content of this page, redirected to dashboard', 'danger')
+#             return redirect(url_for('site.login'))
+#     return wrapper
+
+
 
 
 @mod.route('/register', methods= ['GET', 'POST'])
-@mod.before_request
 # @register_breadcrumb(mod, '.', 'Signup')
 @register_breadcrumb(mod, '.register', 'Signup')
 def register():
@@ -245,7 +256,6 @@ def register():
 
 
 @mod.route('/confirm_email/<token>')
-@mod.before_request
 def confirm_email(token):
 	try:
 		email = serialize.loads(token, salt = 'My-Token', max_age=86400)
@@ -279,7 +289,6 @@ def confirm_email(token):
 	return redirect(url_for('site.dashboard'))
 
 @mod.route('/reset', methods= ['GET', 'POST'])
-@mod.before_request
 def password_reset():
 	form = EmailForm(request.form)
 	if form.validate():
@@ -307,7 +316,6 @@ def password_reset():
 
 
 @mod.route('/reset/<token>', methods=["GET", "POST"])
-@mod.before_request
 def password_reset_token(token):
 	try:
 		email = serialize.loads(token, salt = 'recover_password_key_token', max_age=86400)
@@ -342,7 +350,6 @@ def password_reset_token(token):
 @mod.route('/login', methods = ['GET','POST'])
 # @register_breadcrumb(mod, '.', 'Login')
 @register_breadcrumb(mod, '.login', 'Login')
-@mod.before_request
 def login():
 	if 'logged_in' in session:
 		return redirect(url_for('site.dashboard'))
@@ -413,7 +420,6 @@ def login():
 
 #Route to dashboard
 @mod.route('/dashboard')
-@mod.before_request
 @login_required
 @register_breadcrumb(mod, '.dashboard', 'Dashboard', order=4)
 def dashboard():
@@ -470,7 +476,6 @@ def get_expense_bal(user_id):
 
 #Transaction prcess and routes to new transaction page
 @mod.route('/trans_form', methods= ['GET', 'POST'])
-@mod.before_request
 @login_required
 #@roles_required
 # @register_breadcrumb(mod, '.trans_form', 'NewEntry', order=4)
