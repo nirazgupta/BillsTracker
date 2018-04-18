@@ -190,7 +190,7 @@
         </tbody>
       </table> -->
 
-      <div class="scroll-box2">
+      <!-- <div class="scroll-box2">
       <table class="w3-table-all w3-card">
           <div class="w3-teal">
             <thead>
@@ -210,7 +210,7 @@
               {% endfor %}
             </tbody>
           </table>
-          </div>
+          </div> -->
 
 
       <div class="scroll-box2">
@@ -222,10 +222,10 @@
           </thead>
         </div>
           <tbody>
-            <tr>
-              <td class="people_names"  ng-repeat="data in OwingContent">[[data.name|capitalize]]</td>
-              <td class="tran_view_val" ng-repeat="data in OwingContent">$[[data.amount]]</td> 
-              </tr>
+            <tr ng-repeat="data in OwingContent">
+              <td class="people_names"  >[[data.name|capitalize]]</td>
+              <td class="tran_view_val" >$[[data.amount]]</td> 
+            </tr>
           </tbody>
         </table>
       </div>
