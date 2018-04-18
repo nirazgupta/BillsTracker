@@ -1,9 +1,7 @@
 
 
-. {
-    margin:0px;
-    padding: 0px;
-    font-family: sans-serif;
+.navbar-inverse {
+    border-radius: unset !important;
 }
 
 /*.sidebar {

@@ -9,7 +9,9 @@
  
 
   <div class="col-sm-8 text-left"> 
+      
     <div class="w3-container w3-teal">
+      <div class="row">
         <div class="col-md-8">
           {% for item in data['group'] %}
           <h1>{{item.group_name|title}}</h1>
@@ -18,6 +20,42 @@
         
         <div class="col-md-3"><a href="/trans_form" class="btn btn-success btn-float-right">New bill</a>
         </div>
+      </div> 
+      <div class="row">
+        <div class="col-md-6 test2">
+              {% for item in data['group_total'] %}
+              <p>Group total: </p>
+              {% if item.total %}
+              <p>${{item.total}}</p>
+              {% else %}
+              <p>$0</p>
+              {% endif %}
+              {% endfor %}
+        </div>
+
+      <div class="col-md-6 test">
+            <div id="group_details_menu_2_div">
+            {% for item in data['user_group_total'] %}
+            <p >Your transactions: </p>
+            {% if item.total %}
+            <p >${{item.total}}</p>
+            {% else %}
+            <p >$0</p>
+            {% endif %}
+            </div>
+          
+
+            <div id="group_details_menu_2_div2">
+              <p>You Spent:</p>
+              {% if item.your_expense %}
+              <p >${{item.your_expense|abs}}</p>
+              {% else %}
+              <p > $0</p>
+              {% endif %}
+              {% endfor %}
+          </div>
+        </div>
+     </div>
     </div>
     
     <div class="scroll-box">
@@ -78,6 +116,7 @@
 
 {% block right_nav %}
   <div class="col-sm-2">
+      <div class="scroll-box3">
       <table class="w3-table-all w3-card" >
       <div class="w3-teal">
         <thead>
@@ -93,8 +132,8 @@
           
         </tbody>
       </table>     
- 
-      <table class="w3-table-all w3-card" >
+      </div>
+      <!-- <table class="w3-table-all w3-card" >
       <div class=" w3-teal">
         <thead>
           <th colspan="2">Group Expense</th>
@@ -112,9 +151,9 @@
           </tr>
           {% endfor %}
         </tbody>
-      </table> 
+      </table>  -->
 
-      <table class="w3-table-all w3-card" >
+      <!-- <table class="w3-table-all w3-card" >
       <div class="w3-teal">
         <thead>
           <th colspan="2">Your summary</th>
@@ -132,8 +171,8 @@
           </tr>
           <tr>
           <td class="people_names">Lent:</td>
-          {% if item.lent %}
-          <td class="tran_view_val owes"> ${{item.lent|abs}}</td>
+          {% if item.your_expense %}
+          <td class="tran_view_val owes"> ${{item.your_expense|abs}}</td>
           {% else %}
           <td class="tran_view_val owes"> $0</td>
           {% endif %}
@@ -149,7 +188,49 @@
             {% endif %}
             </tr>
         </tbody>
-      </table>
+      </table> -->
+
+      <div class="scroll-box2">
+      <table class="w3-table-all w3-card">
+          <div class="w3-teal">
+            <thead>
+              <th colspan="2">You owe:</th>
+            </thead>
+          </div>
+            <tbody>
+              {% for item in data['user_group_total'] %}
+              <tr>
+                <td class="people_names">{{user_expense.name}}</td>
+                {% if user_expense.shr_amount %}
+                <td class="tran_view_val">${{user_expense.shr_amount}}</td>
+                {% else %}
+                <td class="tran_view_val">$0</td>
+                {% endif %}
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          </div>
+
+
+      <div class="scroll-box2">
+      <div ng-controller="owingsController">
+      <table class="w3-table-all w3-card" >
+        <div class="w3-teal">
+          <thead>
+            <th colspan="2">Who owes you:</th>
+          </thead>
+        </div>
+          <tbody>
+            <tr>
+              <td class="people_names"  ng-repeat="data in OwingContent">[[data.name|capitalize]]</td>
+              <td class="tran_view_val" ng-repeat="data in OwingContent">$[[data.amount]]</td> 
+              </tr>
+          </tbody>
+        </table>
+      </div>
+      </div>
+
     </div>
 
 {% endblock %}

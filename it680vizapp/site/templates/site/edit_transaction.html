@@ -12,7 +12,7 @@
 			</div>
 			</br>
 				{% from "site/includes/_formhelpers.html" import render_field %}
-				<form method="POST" action="" name="thisForm" id="transaction_form" >
+				<form method="POST" action="" name="thisForm" id="edit_transaction_form" onsubmit="return validateForm2()">
 					
 						<div class="form-group">
 							{{render_field(form.manual_date, class_="form-control")}}

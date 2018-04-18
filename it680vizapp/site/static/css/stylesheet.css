@@ -14,6 +14,38 @@
 }
 
 
+   
+ .col-md-6.test2 p{
+    display:inline;
+    text-align: left;
+    font-family: cursive;
+    font-size: 16px;
+ }   
+
+.col-md-6.test{
+    display: flex;
+    flex-direction: row;
+
+}
+
+#group_details_menu_2_div {
+    margin-left: 60px; 
+}
+#group_details_menu_2_div p {
+    display:inline;
+    text-align: right;
+    font-family: cursive;
+    font-size: 16px;
+} 
+#group_details_menu_2_div2 {
+    padding-left: 20px;
+}
+#group_details_menu_2_div2 p {
+    display:inline;
+    text-align: right;
+    font-family: cursive;
+    font-size: 16px;
+} 
 
 .line {
   fill: none;
@@ -103,7 +135,9 @@
     text-decoration-style: none;
 }
 
-
+#top_nav {
+    border-radius: unset;
+}
 
 .scroll-box::-webkit-scrollbar {
     width: 0px;  /* remove scrollbar space */
@@ -111,6 +145,16 @@
 }
 /* optional: show position indicator in red */
 .scroll-box::-webkit-scrollbar-thumb {
+    background: rgb(255, 255, 255);
+}
+
+
+.scroll-box2::-webkit-scrollbar {
+    width: 0px;  /* remove scrollbar space */
+    background: transparent;  /* optional: just make scrollbar invisible */
+}
+/* optional: show position indicator in red */
+.scroll-box2::-webkit-scrollbar-thumb {
     background: rgb(255, 255, 255);
 }
 
@@ -157,6 +201,18 @@
 .scroll-box {
     overflow-y:auto;
     height: 500px;
+   
+}
+
+.scroll-box2 {
+    overflow-y:auto;
+    height: 150px;
+   
+}
+
+.scroll-box3 {
+    overflow-y:auto;
+    height: 230px;
    
 }
 
@@ -368,3 +424,4 @@ footer {
   }
   .row.content {height:auto;} 
 }
+

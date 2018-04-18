@@ -1,22 +1,3 @@
-// function loopForm(form)
-// {
-//   if (document.getElementById('checkbox').checked == false) 
-//   {
-//       //alert('Select at least one member');
-//       document.getElementById('checkalert').innerHTML="Select at least one member";
-//       return false;
-//   }
-// }
-
-// function transaction_detail(){
-//     output="<tr><td>" + 'first td' + "</td><td>" + 'secondtd' + "</td></tr>";
-//     $("#add_td tbody").append(output);
-    
-// }
-
-// onclick="show_hide_row('{{item.transaction_id}}');"
-
-
 
 function show_hide_row(row)
 {
@@ -142,6 +123,15 @@ function validateForm() {
 }
 
 
+function validateForm2() {
+	var check = document.forms["edit_transaction_form"]["status"].value;
+    if (check == "") {
+        alert("Please choose a status");
+        return false;
+	} 
+}
+
+
 var app = angular.module('MyApp', ['infinite-scroll']);
 
 
@@ -163,7 +153,20 @@ app.config(function($interpolateProvider, $httpProvider){
           });
           });
 
-});
+    });
+
+    app.controller('owingsController', function($scope, $http) {
+        //changed to your local api
+    $(document).ready(function() {
+   trans_value =  $(this).data('value');
+        var url = "/group_owings";
+        $http.get(url).success(function(data) {
+           $scope.OwingContent = data;
+           console.log(data);
+        });
+        });
+
+    });
 
 
 // $('#transaction_table td').keyup(function(e) {

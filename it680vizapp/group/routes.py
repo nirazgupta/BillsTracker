@@ -246,7 +246,7 @@ def user_trans_details():
 
 	cur = mysql.connection.cursor()
 	query = """
-			select sum(amount) as total, sum(you_lent) as lent
+			select sum(amount) as total, sum(you_lent) as lent, sum(your_share) as your_expense
 			from transaction t 
 			where group_id=%s and user_id=%s and t.status='unpaid'
 			"""
@@ -264,12 +264,15 @@ def get_expense_bal2():
 	
 	cur = mysql.connection.cursor()
 	query = """
-			select sum(share_amount) as shr_amount 
-			from user_transaction ut join transaction t 
+			select ut.user_id, u.name, sum(share_amount) as shr_amount 
+			from user_transaction ut join user u
+			on u.user_id=ut.user_id
+			join transaction t 
 			on t.transaction_id = ut.transaction_id
-			where ut.user_id=%s and group_id=%s and t.status='unpaid'
+			where t.user_id<>%s and group_id=%s and t.status='unpaid' and ut.user_id IN (select user_id from transaction where user_id=%s)
+			group by ut.user_id, u.name
 			"""
-	cur.execute(query, ([usr_id, group_id]))
+	cur.execute(query, ([usr_id, group_id, usr_id]))
 	data=cur.fetchone()
 	return data
 
@@ -294,6 +297,28 @@ def owed_users(transaction_id):
 	#converted=Convert(data, dic)
 	return jsonify(data)
 
+@mod.route('/group_owings', methods=['GET', 'POST'])
+@login_required
+def group_owings():
+	cur = mysql.connection.cursor()
+	user = session['username']
+	group_id = session['group_id']
+	usr_data = get_users_id([user])
+	usr_id = usr_data['user_id']
+
+	query = """SELECT ut.user_id, u.name, sum(ut.share_amount) as amount
+				from user_transaction ut join user u 
+				on u.user_id = ut.user_id
+				join transaction t on t.transaction_id=ut.transaction_id
+				where t.group_id=%s and t.user_id=%s and t.status='unpaid' and ut.user_id NOT IN (SELECT user_id from user_transaction where user_id=%s)
+				group by ut.user_id, u.name
+				"""
+		
+	cur.execute(query, ([group_id], [usr_id], [usr_id]))
+	data = cur.fetchall()
+	current_app.logger.info(data)
+	#converted=Convert(data, dic)
+	return jsonify(data)
 
 
 @mod.route('/joingroup', methods=['GET', 'POST'])
