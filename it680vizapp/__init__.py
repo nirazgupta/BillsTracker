@@ -9,7 +9,7 @@ from flask_sslify import SSLify
 
 app = Flask(__name__)
 
-app.config.from_object('config.ProductionConfig')
+app.config.from_object('config.ConfigSqlite')
 
 
 mysql = MySQL(app)
