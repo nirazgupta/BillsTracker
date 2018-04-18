@@ -15,6 +15,7 @@ import json
 import datetime as dt
 from flask_paginate import Pagination, get_page_parameter
 
+
 #from wapy.api import Wapy
 #from walmart_api_client import WalmartApiClient
 import pandas.io.sql as psql
@@ -36,6 +37,9 @@ def login_required(f):
         	flash('Not logged in, Please login first.','danger')
         	return redirect(url_for('site.login'))
     return wrap
+
+
+
 
 #Index route 
 @mod.route('/')

@@ -71,7 +71,7 @@ class ConfigSqlite(Config):
     MYSQL_DB = 'it680vizapp2'
     MYSQL_CURSORCLASS = 'DictCursor'
     
-
+    
     SECURITY_PASSWORD_SALT = '\xd3\xff\xc0\xa0\xe8\x11\x0b\xb9\x93\xb2'
 
     MAIL_SERVER = 'smtp.gmail.com'

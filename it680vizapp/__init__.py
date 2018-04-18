@@ -4,13 +4,15 @@ from flask_mysqldb import MySQL
 from flask_breadcrumbs import Breadcrumbs
 from flask_mail import Mail, Message
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired
-
+from flask_sslify import SSLify 
 
 
 app = Flask(__name__)
-app.config.from_object('config.ConfigSqlite')
-mysql = MySQL(app)
 
+app.config.from_object('config.ProductionConfig')
+
+
+mysql = MySQL(app)
 Breadcrumbs(app=app)
 
 
@@ -24,6 +26,7 @@ from it680vizapp.group.routes import mod
 from site import *
 from it680vizapp.cms import *
 from it680vizapp.group import *
+
 
 
 app.register_blueprint(cms.routes.mod)

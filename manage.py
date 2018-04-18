@@ -1,10 +1,12 @@
-from flask_script import Manager
+from flask_script import Manager, Server
 from it680vizapp import app
 from passlib.hash import sha256_crypt
+
 
 from it680vizapp import mysql
 
 manager = Manager(app)
+manager.add_command("runserver", Server())
 
 @manager.command
 def drop():
@@ -126,5 +128,7 @@ app.config["CACHE_TYPE"] = "null"
 #cache.init_app(app)
 app.config['TEMPLATES_AUTO_RELOAD']=True
 
+
+
 if __name__ == '__main__':
-	manager.run() 
+	manager.run()
