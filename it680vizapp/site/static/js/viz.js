@@ -1,4 +1,4 @@
-
+//********************** BAR CHART ***********************************
 
 function dsBarChart1(){
   
@@ -90,7 +90,7 @@ function dsBarChart1(){
 
 
 
-
+//********************** PIE CHART ***********************************
 var formatAsPercentage = d3.format("%"),
     formatAsPercentage1Dec = d3.format(".1%"),
     formatAsInteger = d3.format(","),
@@ -217,6 +217,7 @@ var formatAsPercentage = d3.format("%"),
 
 
 
+//********************** PIE CHART ***********************************
 function updateData(user_id, colorChosen) {
     // $('#barChart2').remove();
     $.ajax({
@@ -309,8 +310,9 @@ function updateData(user_id, colorChosen) {
 });
 }
 
-   
 
+
+//********************** PIE CHART ***********************************
 //line chart code
 
 function lineChart(user_id, colorChosen){

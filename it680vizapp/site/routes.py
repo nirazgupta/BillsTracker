@@ -87,13 +87,6 @@ def getdata():
 
 	cur.execute(query_trans, ([group_id]))
 	result = cur.fetchall()
-	# current_app.logger.info(result)
-	# current_app.logger.info(result)
-
-	#df2 = psql.read_sql(query_trans, group_id, conn)
-	#df_to_json2 = df2.to_json(orient='records')
-
-	#result = cur.execute(query_trans)
 	cur.close()
 	return jsonify(result)
 

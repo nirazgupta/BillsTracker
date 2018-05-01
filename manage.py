@@ -9,14 +9,14 @@ from it680vizapp import mysql
 manager = Manager(app)
 
 
-pkey = os.getcwd() + '\it680vizapp.key'
-pcert = os.getcwd() + '\it680vizapp.crt'
+# pkey = os.getcwd() + '\it680vizapp.key'
+# pcert = os.getcwd() + '\it680vizapp.crt'
 
-context = SSL.Context(SSL.SSLv23_METHOD)
-context.use_privatekey_file(pkey)
-context.use_certificate_file(pcert)
+# context = SSL.Context(SSL.SSLv23_METHOD)
+# context.use_privatekey_file(pkey)
+# context.use_certificate_file(pcert)
 
-manager.add_command("runserver", Server(ssl_key=pkey, ssl_crt=pcert))
+# manager.add_command("runserver", Server(ssl_key=pkey, ssl_crt=pcert))
 
 @manager.command
 def drop():
