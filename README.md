@@ -32,5 +32,25 @@ BillsTracker is a web app developed with purpose of providing users a platform w
 * D3.js
 * Heroku
 
+## Sample views
+These are sample views of the application, to take a look around please use the credentials provided or create your own to login.
+# Dashboard view
+![alt text](https://github.com/nirazgupta/BillsTracker/blob/master/documentationImages/vizapp1.png)
+
+# Dynamic visualization dashboard
+![alt text](https://github.com/nirazgupta/BillsTracker/blob/master/documentationImages/Picture2.png)
+
+
+# Installation after cloning
+* Clone the project from this repository.
+* Once after the project is cloned on machine, install the libraries from the requirements.txt file. This will install all the needed 
+packages and libraries to run the application. Preferable, virtualenv to create a virtual environment, but its up to you.
+
+* Update the config.py file to change the database connection (update ConfigSqlite(Config) class for local host or ProductionConfig(Config) for production) also update the username and password for your smtp.
+
+* Create the required table with 'python manage.py create_tables'. This will create the database and tables for the project.
+* Create the admin with 'python manage.py create_admin', the prompt will ask you for name, email, password before creating the admin user.
+* Note: take a look at manage.py file if you would want to see and understand the code.
+* If everything goes well so far, you can run the application using 'python manage.py runserver'
 
 
