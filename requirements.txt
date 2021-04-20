@@ -57,7 +57,7 @@ pillow==5.0.0
 pluggy==0.6.0
 ply==3.10
 portend==2.2
-py==1.5.2
+py==1.10.0
 pycparser==2.18
 pycryptodome==3.4.11
 pymongo==2.8
