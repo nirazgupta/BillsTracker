@@ -79,7 +79,7 @@ six==1.11.0
 smart-open==1.5.6
 SQLAlchemy==1.1.15
 tempora==1.10
-urllib3==1.22
+urllib3==1.26.5
 vine==1.1.4
 walmart-api-client==1.0
 wapy==1.0.0
